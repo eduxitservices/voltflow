@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>VoltFlow — EV Fleet Charging Orchestrator</title>
+  
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+
+  <!-- AUTH MODAL OVERLAY -->
+  <div class="auth-overlay" id="authOverlay" style="display: none;">
+    <div class="auth-card">
+      <div class="auth-left-hero">
+        <div class="auth-logo-badge">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <div>
+          <h2>VoltFlow</h2>
+          <p class="hero-tag">Smart Charging. Smarter Fleet. Greener Lucknow.</p>
+        </div>
+        <div class="hero-ev-graphic">
+          <i class="fa-solid fa-car-battery" style="font-size: 70px; color: rgba(255,255,255,0.85);"></i>
+        </div>
+      </div>
+
+      <div class="auth-right-form">
+        <div class="auth-tabs">
+          <button class="auth-tab-btn active" id="tabLoginBtn" type="button" onclick="switchAuthTab('login')">Log In</button>
+          <button class="auth-tab-btn" id="tabRegisterBtn" type="button" onclick="switchAuthTab('register')">Sign Up</button>
+        </div>
+
+        <form id="loginForm" class="auth-form-body">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="loginEmail" value="admin@voltflow.io" required placeholder="name@voltflow.io" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="loginPassword" value="adminpassword123" required placeholder="••••••••" />
+          </div>
+          <button type="submit" class="btn-auth-submit">Log In to Fleet Console</button>
+          <div class="demo-cred-note">
+            <i class="fa-solid fa-circle-info"></i> Demo: <b>admin@voltflow.io</b> | <b>adminpassword123</b>
+          </div>
+        </form>
+
+        <form id="registerForm" class="auth-form-body" style="display: none;">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" id="regName" required placeholder="Mayank Tiwari" />
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="regEmail" required placeholder="mayank@voltflow.io" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="regPassword" required placeholder="At least 6 characters" />
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select id="regRole">
+              <option value="Super Admin">Super Admin</option>
+              <option value="Fleet Manager">Fleet Manager</option>
+              <option value="Operator">Operator</option>
+              <option value="Driver">Driver</option>
+            </select>
+          </div>
+          <button type="submit" class="btn-auth-submit">Create Account</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN SaaS APPLICATION LAYOUT -->
+  <div class="app-container" id="appMainLayout">
+    
+    <!-- LEFT SIDEBAR (Desktop) -->
+    <aside class="sidebar">
+      <div class="brand-header">
+        <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div>
+        <div style="flex:1;">
+          <div class="brand-title">VoltFlow</div>
+          <div class="brand-subtitle">EV Fleet Orchestrator</div>
+        </div>
+      </div>
+
+      <ul class="nav-list">
+        <li class="nav-item active" data-tab="dashboard">
+          <i class="fa-solid fa-table-columns"></i> <span>Dashboard</span>
+        </li>
+        <li class="nav-item" data-tab="vehicles">
+          <i class="fa-solid fa-car"></i> <span>Vehicles</span>
+        </li>
+        <li class="nav-item" data-tab="stations">
+          <i class="fa-solid fa-charging-station"></i> <span>Charging Stations</span>
+        </li>
+        <li class="nav-item" data-tab="schedule">
+          <i class="fa-regular fa-calendar-check"></i> <span>Schedule</span>
+        </li>
+        <li class="nav-item" data-tab="orchestration">
+          <i class="fa-solid fa-sliders"></i> <span>Orchestration</span>
+        </li>
+        <li class="nav-item" data-tab="analytics">
+          <i class="fa-solid fa-chart-line"></i> <span>Analytics</span>
+        </li>
+        <li class="nav-item" data-tab="alerts">
+          <i class="fa-regular fa-bell"></i> <span>Alerts</span>
+        </li>
+        <li class="nav-item" data-tab="reports">
+          <i class="fa-regular fa-file-lines"></i> <span>Reports</span>
+        </li>
+        <li class="nav-item" data-tab="users">
+          <i class="fa-solid fa-users"></i> <span>Users & Roles</span>
+        </li>
+      </ul>
+
+      <div class="user-profile-badge" id="userProfileBtn">
+        <div class="user-avatar" id="avatarInitials">MT</div>
+        <div style="flex:1; overflow:hidden;">
+          <div class="user-name" id="userProfileName">Mayank Tiwari</div>
+          <div class="user-role" id="userProfileRole">Super Admin</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN WORKSPACE -->
+    <main class="workspace">
+      <header class="top-navbar">
+        <div class="welcome-text">
+          <h2>Welcome back, <span id="navUserName">Mayank</span>! 👋</h2>
+          <p>Lucknow EV Fleet Telemetry & Smart Charging Hub</p>
+        </div>
+        <div class="nav-controls">
+          <div class="date-pill">
+            <span id="currentDatePill">May 17, 2026</span>
+            <i class="fa-regular fa-calendar" style="color: #64748B;"></i>
+          </div>
+          <button class="icon-circle-btn" title="Alerts" onclick="switchNav('alerts')"><i class="fa-regular fa-bell"></i></button>
+          <button class="icon-circle-btn" title="Full Screen" onclick="toggleFullScreen()"><i class="fa-solid fa-expand"></i></button>
+          <button class="icon-circle-btn" title="Log Out" id="logoutBtn" style="color: #EF4444;"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
+        </div>
+      </header>
+
+      <section class="content-viewport" id="viewport"></section>
+
+      <!-- MOBILE BOTTOM NAVIGATION (Matching Reference) -->
+      <nav class="mobile-bottom-nav">
+        <div class="mob-nav-item active" data-tab="dashboard">
+          <i class="fa-solid fa-table-columns"></i>
+          <span>Dashboard</span>
+        </div>
+        <div class="mob-nav-item" data-tab="vehicles">
+          <i class="fa-solid fa-car"></i>
+          <span>Vehicles</span>
+        </div>
+        <div class="mob-nav-item" data-tab="stations">
+          <i class="fa-solid fa-charging-station"></i>
+          <span>Stations</span>
+        </div>
+        <div class="mob-nav-item" data-tab="orchestration">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Orchestration</span>
+        </div>
+        <div class="mob-nav-item" data-tab="alerts">
+          <i class="fa-regular fa-bell"></i>
+          <span>Alerts</span>
+        </div>
+      </nav>
+    </main>
+
+    <!-- RIGHT VEHICLE DETAILS PANEL -->
+    <aside class="right-details-panel" id="rightDetailsPanel">
+      <div class="right-panel-header">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <i class="fa-solid fa-arrow-left" style="cursor:pointer; color:#64748B;" onclick="closeDetailsPanel()"></i>
+          <h3>Vehicle Details</h3>
+        </div>
+        <i class="fa-solid fa-xmark" style="cursor:pointer; color:#64748B; font-size:16px;" onclick="closeDetailsPanel()"></i>
+      </div>
+
+      <div id="rightPanelBody"></div>
+    </aside>
+
+  </div>
+
+  <!-- Global Modal for Add / CSV Import / Diagnostics -->
+  <div class="modal-backdrop" id="globalModal">
+    <div class="modal-window" id="modalWindowContent"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/socket.js"></script>
+  <script src="js/charts.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
