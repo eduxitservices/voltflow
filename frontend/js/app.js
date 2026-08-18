@@ -1,6 +1,6 @@
-// VoltFlow Core Engine Controller — Interconnected Multi-User Shared Station OS[cite: 4]
+// VoltFlow Core Engine Controller — Autonomous Smart Priority & Real-Time Cost Engine[cite: 4]
 
-const DEMO_ACCOUNT_EMAIL = "admin@voltflow.io";
+const DEMO_ACCOUNT_EMAIL = "admin@voltflow.io"; //[cite: 4]
 
 const BASE_STATIONS_CATALOG = [
   {
@@ -93,137 +93,111 @@ const BASE_STATIONS_CATALOG = [
     activeSessions: "3 / 8",
     utilizationPct: 40
   }
-];
+]; //[cite: 4]
 
+// Point 1: Realistic Initial Fleet Distribution (1 Critical, 2 High, 3 Medium, 2 Low)[cite: 4]
 const DEMO_PRESET_VEHICLES = [
-  {
-    vehicleId: "EV-001",
-    licensePlate: "UP32-EV-4101",
-    model: "Tata Nexon EV Max",
-    batteryCapacityKWh: 40.5,
-    currentSOC: 42,
-    targetSOC: 90,
-    currentRangeKM: 135,
-    status: "charging",
-    assignedStation: "Gomti Nagar Cyber Tower",
-    stationId: "CS-LKO-02",
-    assignedCharger: "Gun #1 (DC Fast)",
-    currentChargingPowerKW: 45,
-    departureDeadline: "06:30 AM",
-    priority: "High",
-    eta: "05:42 AM",
-    startTime: "04:50 AM",
-    safetyBuffer: "48 min",
-    energyDeliveredKWh: 14.5,
-    lat: 26.8467,
-    lng: 80.9462
-  },
   {
     vehicleId: "EV-002",
     licensePlate: "UP32-EV-9022",
     model: "Mahindra XUV400",
     batteryCapacityKWh: 39.4,
-    currentSOC: 16,
-    targetSOC: 85,
-    currentRangeKM: 48,
+    currentSOC: 15,
+    targetSOC: 90,
+    currentRangeKM: 45,
     status: "charging",
     assignedStation: "Gomti Nagar Cyber Tower",
     stationId: "CS-LKO-02",
-    assignedCharger: "Gun #2 (High-Power)",
+    assignedCharger: "Charger 01 (Fast 60kW)",
     currentChargingPowerKW: 60,
-    departureDeadline: "05:15 AM",
-    priority: "Critical",
+    departureDeadline: "30 min",
     eta: "05:05 AM",
     startTime: "04:15 AM",
     safetyBuffer: "10 min",
-    energyDeliveredKWh: 18.2,
+    energyDeliveredKWh: 8.2,
     lat: 26.8722,
     lng: 80.9984
   },
   {
-    vehicleId: "EV-003",
-    licensePlate: "UP32-EV-7788",
-    model: "Tata Ace EV (Cargo)",
-    batteryCapacityKWh: 21.3,
-    currentSOC: 68,
-    targetSOC: 95,
-    currentRangeKM: 88,
-    status: "charging",
-    assignedStation: "Alambagh Transport Hub",
-    stationId: "CS-LKO-03",
-    assignedCharger: "Gun #1 (Standard)",
-    currentChargingPowerKW: 30,
-    departureDeadline: "08:00 AM",
-    priority: "Medium",
-    eta: "06:30 AM",
-    startTime: "05:10 AM",
-    safetyBuffer: "90 min",
-    energyDeliveredKWh: 8.4,
-    lat: 26.8142,
-    lng: 80.9022
-  },
-  {
-    vehicleId: "EV-004",
-    licensePlate: "UP32-EV-1120",
-    model: "MG ZS EV Long Range",
-    batteryCapacityKWh: 50.3,
-    currentSOC: 80,
+    vehicleId: "EV-001",
+    licensePlate: "UP32-EV-4101",
+    model: "Tata Nexon EV Max",
+    batteryCapacityKWh: 40.5,
+    currentSOC: 35,
     targetSOC: 90,
-    currentRangeKM: 320,
-    status: "idle",
-    assignedStation: "Alambagh Transport Hub",
-    stationId: "CS-LKO-03",
-    assignedCharger: "Standby Bay",
-    currentChargingPowerKW: 0,
-    departureDeadline: "09:30 AM",
-    priority: "Low",
-    eta: "--",
-    startTime: "--",
-    safetyBuffer: "120 min",
-    energyDeliveredKWh: 0,
-    lat: 26.8180,
-    lng: 80.9050
+    currentRangeKM: 115,
+    status: "charging",
+    assignedStation: "Gomti Nagar Cyber Tower",
+    stationId: "CS-LKO-02",
+    assignedCharger: "Charger 02 (Modulated 45kW)",
+    currentChargingPowerKW: 45,
+    departureDeadline: "1 hour",
+    eta: "05:42 AM",
+    startTime: "04:50 AM",
+    safetyBuffer: "25 min",
+    energyDeliveredKWh: 6.5,
+    lat: 26.8467,
+    lng: 80.9462
   },
   {
     vehicleId: "EV-005",
     licensePlate: "UP32-EV-3344",
     model: "Tata Tigor EV Express",
     batteryCapacityKWh: 26.0,
-    currentSOC: 24,
-    targetSOC: 90,
-    currentRangeKM: 55,
+    currentSOC: 32,
+    targetSOC: 85,
+    currentRangeKM: 70,
     status: "charging",
     assignedStation: "Hazratganj EV Superhub",
     stationId: "CS-LKO-01",
-    assignedCharger: "Gun #3 (Modulated)",
+    assignedCharger: "Charger 03 (Standard 35kW)",
     currentChargingPowerKW: 35,
-    departureDeadline: "05:45 AM",
-    priority: "Critical",
+    departureDeadline: "1.5 hours",
     eta: "05:25 AM",
     startTime: "04:30 AM",
-    safetyBuffer: "20 min",
-    energyDeliveredKWh: 9.1,
+    safetyBuffer: "30 min",
+    energyDeliveredKWh: 4.1,
     lat: 26.8480,
     lng: 80.9490
+  },
+  {
+    vehicleId: "EV-003",
+    licensePlate: "UP32-EV-7788",
+    model: "Tata Ace EV (Cargo)",
+    batteryCapacityKWh: 21.3,
+    currentSOC: 55,
+    targetSOC: 95,
+    currentRangeKM: 72,
+    status: "queued",
+    assignedStation: "Alambagh Transport Hub",
+    stationId: "CS-LKO-03",
+    assignedCharger: "Queue Position 1",
+    currentChargingPowerKW: 0,
+    departureDeadline: "3 hours",
+    eta: "06:30 AM",
+    startTime: "05:10 AM",
+    safetyBuffer: "60 min",
+    energyDeliveredKWh: 0,
+    lat: 26.8142,
+    lng: 80.9022
   },
   {
     vehicleId: "EV-006",
     licensePlate: "UP32-EV-8899",
     model: "Hyundai Kona Electric",
     batteryCapacityKWh: 39.2,
-    currentSOC: 55,
+    currentSOC: 50,
     targetSOC: 85,
-    currentRangeKM: 175,
+    currentRangeKM: 160,
     status: "queued",
     assignedStation: "Gomti Nagar Cyber Tower",
     stationId: "CS-LKO-02",
-    assignedCharger: "Queue Bay #1",
+    assignedCharger: "Queue Position 2",
     currentChargingPowerKW: 0,
-    departureDeadline: "07:15 AM",
-    priority: "Medium",
+    departureDeadline: "3.5 hours",
     eta: "06:45 AM",
     startTime: "05:30 AM",
-    safetyBuffer: "30 min",
+    safetyBuffer: "45 min",
     energyDeliveredKWh: 0,
     lat: 26.8740,
     lng: 80.9950
@@ -233,22 +207,42 @@ const DEMO_PRESET_VEHICLES = [
     licensePlate: "UP32-EV-6611",
     model: "Tata Nexon EV Prime",
     batteryCapacityKWh: 30.2,
-    currentSOC: 12,
-    targetSOC: 80,
-    currentRangeKM: 32,
+    currentSOC: 60,
+    targetSOC: 85,
+    currentRangeKM: 130,
     status: "in-transit",
     assignedStation: "Hazratganj EV Superhub",
     stationId: "CS-LKO-01",
-    assignedCharger: "En-Route Reservation",
+    assignedCharger: "En-Route Bay",
     currentChargingPowerKW: 0,
-    departureDeadline: "05:00 AM",
-    priority: "Critical",
+    departureDeadline: "4 hours",
     eta: "04:55 AM",
     startTime: "04:20 AM",
-    safetyBuffer: "5 min",
+    safetyBuffer: "60 min",
     energyDeliveredKWh: 0,
     lat: 26.8380,
     lng: 80.9300
+  },
+  {
+    vehicleId: "EV-004",
+    licensePlate: "UP32-EV-1120",
+    model: "MG ZS EV Long Range",
+    batteryCapacityKWh: 50.3,
+    currentSOC: 82,
+    targetSOC: 90,
+    currentRangeKM: 330,
+    status: "idle",
+    assignedStation: "Alambagh Transport Hub",
+    stationId: "CS-LKO-03",
+    assignedCharger: "Standby Bay",
+    currentChargingPowerKW: 0,
+    departureDeadline: "6 hours",
+    eta: "--",
+    startTime: "--",
+    safetyBuffer: "120 min",
+    energyDeliveredKWh: 0,
+    lat: 26.8180,
+    lng: 80.9050
   },
   {
     vehicleId: "EV-008",
@@ -258,369 +252,251 @@ const DEMO_PRESET_VEHICLES = [
     currentSOC: 75,
     targetSOC: 95,
     currentRangeKM: 365,
-    status: "charging",
+    status: "idle",
     assignedStation: "Shaheed Path Express Hub",
     stationId: "CS-LKO-05",
-    assignedCharger: "Gun #4 (Standard)",
-    currentChargingPowerKW: 40,
-    departureDeadline: "10:00 AM",
-    priority: "Low",
-    eta: "07:30 AM",
-    startTime: "05:00 AM",
-    safetyBuffer: "150 min",
-    energyDeliveredKWh: 15.0,
+    assignedCharger: "Standby Bay",
+    currentChargingPowerKW: 0,
+    departureDeadline: "8 hours",
+    eta: "--",
+    startTime: "--",
+    safetyBuffer: "180 min",
+    energyDeliveredKWh: 0,
     lat: 26.7922,
     lng: 80.9989
   }
-];
+]; //[cite: 4]
 
 const DEMO_PRESET_ALERTS = [
   {
     id: "ALT-01",
     severity: "critical",
-    title: "Critical Battery Level (<20%)",
-    message: "EV-002 at 16% SOC near Gomti Nagar. Immediate charge required before 05:15 AM departure.",
-    actionTitle: "Route & Reserve Gun #2 at Gomti Nagar Hub",
+    title: "Critical Battery Urgency Alert",
+    message: "EV-002 at 15% SOC with 30 min departure. Auto-promoted to highest priority Charger 01 at Gomti Nagar Superhub.",
+    actionTitle: "Allocated 60 kW Fast Power",
     power: "60 kW",
-    target: "85%",
+    target: "90%",
     rate: "₹10/kWh"
   },
   {
     id: "ALT-02",
     severity: "warning",
-    title: "Substation Headroom Modulation",
-    message: "Hazratganj Hub approached 110 kW peak. Auto-modulated EV-005 to 35 kW to safeguard 150 kW transformer threshold.",
-    actionTitle: "Shift Non-Critical EV to Shaheed Path Express Hub",
-    power: "30 kW",
-    target: "85%",
-    rate: "₹11/kWh"
+    title: "Grid Safe Load Governor Active",
+    message: "Total substation demand managed at 140 kW, maintaining 10 kW safe headroom below 150 kW cap.",
+    actionTitle: "Queue Modulated",
+    power: "Safe",
+    target: "100%",
+    rate: "₹10/kWh"
   }
-];
+]; //[cite: 4]
 
-// Active State
-let currentUser = null;
-let stationVehicles = [];
-let fleetStations = JSON.parse(JSON.stringify(BASE_STATIONS_CATALOG));
+// Global Runtime State[cite: 4]
+let currentUser = null; //[cite: 4]
+let stationVehicles = []; //[cite: 4]
+let fleetStations = JSON.parse(JSON.stringify(BASE_STATIONS_CATALOG)); //[cite: 4]
 
-let fleetMap = null;
-let vehicleToDeleteId = null;
-let currentSelectedModalVehicleId = null;
-let dashboardLiveChartInstance = null;
-let dashboardEnergyChartInstance = null;
-let analyticsComparisonChartInstance = null;
-let savingsTimelineChartInstance = null;
+let fleetMap = null; //[cite: 4]
+let vehicleToDeleteId = null; //[cite: 4]
+let currentSelectedModalVehicleId = null; //[cite: 4]
+let dashboardLiveChartInstance = null; //[cite: 4]
+let dashboardEnergyChartInstance = null; //[cite: 4]
+let analyticsComparisonChartInstance = null; //[cite: 4]
+let savingsTimelineChartInstance = null; //[cite: 4]
 
-// ================= POINT 2: DYNAMIC SYSTEM DATE & CLOCK =================
-function startGlobalClock() {
-  function updateClock() {
-    const now = new Date();
-    const options = { day: 'numeric', month: 'long', year: 'numeric' };
-    const dateStr = now.toLocaleDateString('en-GB', options);
-    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-
-    const dateEl = document.getElementById('global-dynamic-date');
-    const timeEl = document.getElementById('global-dynamic-time');
-    const dashDateEl = document.getElementById('dash-date-badge');
-
-    if (dateEl) dateEl.textContent = dateStr;
-    if (timeEl) timeEl.textContent = timeStr;
-    if (dashDateEl) dashDateEl.textContent = dateStr;
+// ================= POINT 1: DUAL-FACTOR AUTOMATIC PRIORITY ENGINE =================
+function parseDeadlineToMinutes(deadlineStr) {
+  if (!deadlineStr) return 180;
+  const lower = String(deadlineStr).toLowerCase().trim();
+  
+  if (lower.includes('min')) {
+    const match = lower.match(/\d+/);
+    return match ? parseInt(match[0]) : 30;
   }
-  updateClock();
-  setInterval(updateClock, 1000);
+  if (lower.includes('hour') || lower.includes('hr')) {
+    const match = lower.match(/[\d.]+/);
+    return match ? Math.round(parseFloat(match[0]) * 60) : 60;
+  }
+  if (lower.includes(':')) {
+    return 45; // Imminent scheduled departure
+  }
+  return 180;
 }
 
-// ================= POINT 1 & 2: AUTOMATIC SMART CHARGING PRIORITY ENGINE =================
 function calculateAutoPriority(vehicle) {
   const soc = parseInt(vehicle.currentSOC) || 0;
   const target = parseInt(vehicle.targetSOC) || 90;
-  const deficit = Math.max(0, target - soc);
-  
-  let deadlineMinutes = 180;
-  if (vehicle.departureDeadline) {
-    const lower = vehicle.departureDeadline.toLowerCase();
-    if (lower.includes('min')) {
-      const match = lower.match(/\d+/);
-      if (match) deadlineMinutes = parseInt(match[0]);
-    } else if (lower.includes('hour') || lower.includes('hr')) {
-      const match = lower.match(/\d+/);
-      if (match) deadlineMinutes = parseInt(match[0]) * 60;
-    } else if (lower.includes(':')) {
-      deadlineMinutes = 60;
-    }
+  const minutes = parseDeadlineToMinutes(vehicle.departureDeadline);
+
+  // If already full or no energy required
+  if (soc >= target) {
+    return 'Low';
   }
 
-  // Automatic Decision Score Hierarchy:
-  if (soc <= 20 || (soc <= 40 && deadlineMinutes <= 60)) {
+  // 1. 🔴 CRITICAL RULE: SOC <= 20% AND Departure <= 45 minutes
+  if (soc <= 20 && minutes <= 45) {
     return 'Critical';
   }
-  if (soc <= 45 || (soc <= 60 && deadlineMinutes <= 90)) {
+
+  // 2. 🟠 HIGH RULE: SOC 20-40% AND Departure <= 120 minutes (2 hrs) OR Critical SOC with departure in <= 90 mins
+  if ((soc <= 40 && minutes <= 120) || (soc <= 20 && minutes <= 90)) {
     return 'High';
   }
-  if (soc <= 70 || deficit >= 35) {
+
+  // 3. 🟡 MEDIUM RULE: SOC 40-65% AND Departure <= 240 minutes (4 hrs) OR High SOC with tight departure
+  if ((soc <= 65 && minutes <= 240) || (soc <= 40 && minutes > 120)) {
     return 'Medium';
   }
+
+  // 4. 🟢 LOW RULE: SOC > 65% OR Departure > 4 hours away
   return 'Low';
 }
 
-// ================= POINT 3 & 4: AUTOMATIC QUEUE & MULTI-CHARGER ASSIGNMENT =================
-function updateChargingQueueAndChargers() {
-  const container = document.getElementById('dynamic-charging-queue-container');
-  const countBadge = document.getElementById('queue-count-badge');
-  if (!container) return;
+// ================= POINT 5 & 6: EXACT FORMULA-DRIVEN COST & SAVINGS =================
+function calculateChargingCost(vehicle) {
+  const soc = parseInt(vehicle.currentSOC) || 0;
+  const target = parseInt(vehicle.targetSOC) || 90;
+  const capacity = parseFloat(vehicle.batteryCapacityKWh) || 40.0;
+  
+  const deficitSOC = Math.max(0, target - soc);
+  const energyRequired = Math.max(0, (capacity * deficitSOC) / 100);
 
-  if (stationVehicles.length === 0) {
-    container.innerHTML = `<div class="col-span-full py-4 text-center text-slate-400 text-xs font-medium">No vehicles registered in station.</div>`;
-    if (countBadge) countBadge.textContent = "0 In Queue";
-    return;
+  if (energyRequired === 0 || soc >= target) {
+    return {
+      energyRequired: "0.0",
+      pricePerKWh: 10,
+      estimatedCost: 0,
+      baselineCost: 0,
+      estimatedSaving: 0,
+      isComplete: true
+    };
   }
 
-  stationVehicles.forEach(v => {
-    v.priority = calculateAutoPriority(v);
-  });
-
-  const priorityWeight = { 'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4 };
-  const sortedQueue = [...stationVehicles].sort((a, b) => {
-    const pA = priorityWeight[a.priority] || 4;
-    const pB = priorityWeight[b.priority] || 4;
-    if (pA !== pB) return pA - pB;
-    return a.currentSOC - b.currentSOC;
-  });
-
-  if (countBadge) countBadge.textContent = `${sortedQueue.length} In Queue`;
-
-  const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣'];
-
-  container.innerHTML = sortedQueue.slice(0, 4).map((v, idx) => {
-    const medal = medals[idx] || `${idx + 1}️⃣`;
-    const costData = calculateChargingCost(v);
-    
-    let stateTag = "QUEUED";
-    let stateBg = "bg-slate-100 text-slate-700";
-    if (v.status === 'charging') {
-      stateTag = idx === 0 ? "NOW CHARGING (1st)" : "NOW CHARGING";
-      stateBg = "bg-blue-600 text-white animate-pulse";
-    } else if (idx === 1) {
-      stateTag = "NEXT (2nd)";
-      stateBg = "bg-amber-500 text-white";
-    }
-
-    return `
-      <div class="p-3 rounded-xl border ${v.priority === 'Critical' ? 'bg-rose-50/70 border-rose-200' : (v.priority === 'High' ? 'bg-amber-50/70 border-amber-200' : 'bg-slate-50 border-slate-200')} shadow-sm">
-        <div class="flex items-center justify-between">
-          <span class="text-sm font-black">${medal} ${v.vehicleId}</span>
-          <span class="px-2 py-0.5 rounded text-[9px] font-bold ${stateBg}">${stateTag}</span>
-        </div>
-        <div class="mt-2 flex items-center justify-between text-xs font-bold text-slate-700">
-          <span>SOC: <strong class="text-blue-600">${v.currentSOC}%</strong></span>
-          ${getPriorityBadge(v.priority)}
-        </div>
-        <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-500 font-medium">
-          <span>${v.assignedCharger || 'Gun #1'}</span>
-          <span class="font-bold text-slate-800">${v.currentChargingPowerKW > 0 ? v.currentChargingPowerKW + ' kW' : 'Queued'}</span>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-// ================= POINT 6, 7 & 11: EXACT FORMULA-DRIVEN SAVINGS CALCULATION =================
-function calculateChargingCost(vehicle) {
-  const energyRequired = Math.max(0, (vehicle.batteryCapacityKWh * (vehicle.targetSOC - vehicle.currentSOC)) / 100);
   const station = fleetStations.find(s => s.id === vehicle.stationId) || fleetStations[0];
-  const optimizedPrice = station ? station.currentPrice : 10; // e.g. ₹9 - ₹12/kWh
+  const optimizedPrice = station ? (station.currentPrice || 10) : 10; // ₹9 to ₹13
   const baselinePrice = 14; // Baseline unmanaged peak price (₹14/kWh)
 
+  const estimatedCost = Math.round(energyRequired * optimizedPrice);
   const baselineCost = Math.round(energyRequired * baselinePrice);
-  const optimizedCost = Math.round(energyRequired * optimizedPrice);
-  const estimatedSaving = Math.max(0, baselineCost - optimizedCost);
+  const estimatedSaving = Math.max(0, baselineCost - estimatedCost);
 
   return {
     energyRequired: energyRequired.toFixed(1),
     pricePerKWh: optimizedPrice,
-    estimatedCost: optimizedCost,
+    estimatedCost: estimatedCost,
     baselineCost: baselineCost,
-    estimatedSaving: estimatedSaving
+    estimatedSaving: estimatedSaving,
+    isComplete: false
   };
 }
 
-// ================= POINT 8, 9, 10: DYNAMIC SAVINGS FILTERS & ANALYTICS =================
-let currentSavingsFilter = "30days";
+// ================= POINT 2, 3, 4: AUTOMATIC QUEUE SORTING & CHARGER ALLOCATION =================
+function updateChargingQueueAndChargers() {
+  const container = document.getElementById('dynamic-charging-queue-container');
+  const countBadge = document.getElementById('queue-count-badge');
 
-function handleSavingsDateFilterChange() {
-  const filterVal = document.getElementById('savings-date-filter').value;
-  currentSavingsFilter = filterVal;
-  const customInputs = document.getElementById('custom-date-inputs');
-
-  if (filterVal === 'custom') {
-    customInputs.classList.remove('hidden');
-  } else {
-    customInputs.classList.add('hidden');
-    updateSavingsAnalyticsView();
+  if (stationVehicles.length === 0) {
+    if (container) container.innerHTML = `<div class="col-span-full py-4 text-center text-slate-400 text-xs font-medium">No vehicles registered in station.</div>`;
+    if (countBadge) countBadge.textContent = "0 In Queue";
+    return;
   }
-}
 
-function applyCustomDateSavings() {
-  updateSavingsAnalyticsView();
-}
+  // Recalculate priority automatically
+  stationVehicles.forEach(v => {
+    v.priority = calculateAutoPriority(v);
+  });
 
-function updateSavingsAnalyticsView() {
-  const totalFleetSavings = stationVehicles.reduce((acc, v) => acc + calculateChargingCost(v).estimatedSaving, 0);
+  // Sort: Critical (1) > High (2) > Medium (3) > Low (4) -> Earlier Departure -> Lower SOC
+  const priorityWeight = { 'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4 };
   
-  let multiplier = 1;
-  let periodDays = 30;
-  let title = "Charging Cost Savings — Last 30 Days";
-  let chartLabels = [];
-  let chartData = [];
+  stationVehicles.sort((a, b) => {
+    const wA = priorityWeight[a.priority] || 4;
+    const wB = priorityWeight[b.priority] || 4;
+    if (wA !== wB) return wA - wB;
 
-  switch (currentSavingsFilter) {
-    case 'today':
-      multiplier = 1;
-      periodDays = 1;
-      title = "Charging Cost Savings — Today (18 Aug 2026)";
-      chartLabels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
-      chartData = [120, 180, 240, 160, 310, 280].map(v => Math.round(v * (totalFleetSavings > 0 ? (totalFleetSavings / 200) : 1)));
-      break;
-    case 'yesterday':
-      multiplier = 0.95;
-      periodDays = 1;
-      title = "Charging Cost Savings — Yesterday";
-      chartLabels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
-      chartData = [110, 170, 220, 150, 290, 260].map(v => Math.round(v * (totalFleetSavings > 0 ? (totalFleetSavings / 200) : 1)));
-      break;
-    case '7days':
-      multiplier = 7;
-      periodDays = 7;
-      title = "Charging Cost Savings — Last 7 Days";
-      chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      chartData = [450, 520, 610, 480, 720, 680, 590].map(v => Math.round(v * (totalFleetSavings > 0 ? (totalFleetSavings / 150) : 1)));
-      break;
-    case '30days':
-      multiplier = 30;
-      periodDays = 30;
-      title = "Charging Cost Savings — Last 30 Days";
-      chartLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-      chartData = [3400, 4200, 4800, 5250].map(v => Math.round(v * (totalFleetSavings > 0 ? (totalFleetSavings / 100) : 1)));
-      break;
-    case '3months':
-      multiplier = 90;
-      periodDays = 90;
-      title = "Charging Cost Savings — Last 3 Months";
-      chartLabels = ['June 2026', 'July 2026', 'August 2026'];
-      chartData = [14200, 16800, 18450].map(v => Math.round(v * (totalFleetSavings > 0 ? (totalFleetSavings / 80) : 1)));
-      break;
-    case '6months':
-      multiplier = 180;
-      periodDays = 180;
-      title = "Charging Cost Savings — Last 6 Months";
-      chartLabels = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
-      chartData = [11200, 13400, 15100, 16800, 17900, 18450].map(v => Math.round(v * (totalFleetSavings > 0 ? (totalFleetSavings / 80) : 1)));
-      break;
-    case '1year':
-      multiplier = 365;
-      periodDays = 365;
-      title = "Charging Cost Savings — Last 1 Year";
-      chartLabels = ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025', 'Q1 2026', 'Q2 2026'];
-      chartData = [28000, 34000, 42000, 48000, 54000, 62000].map(v => Math.round(v * (totalFleetSavings > 0 ? (totalFleetSavings / 60) : 1)));
-      break;
-    default:
-      multiplier = 15;
-      periodDays = 15;
-      title = "Charging Cost Savings — Custom Range";
-      chartLabels = ['P1', 'P2', 'P3', 'P4'];
-      chartData = [2100, 2800, 3400, 3900];
-  }
+    const minA = parseDeadlineToMinutes(a.departureDeadline);
+    const minB = parseDeadlineToMinutes(b.departureDeadline);
+    if (minA !== minB) return minA - minB;
 
-  const calculatedTotalSavings = stationVehicles.length > 0 
-    ? Math.round(totalFleetSavings * (multiplier / 2) + 1200) 
-    : 0;
-  
-  const calculatedEnergyCostSaved = Math.round(calculatedTotalSavings * 0.85);
-  const avgDaily = periodDays > 0 ? Math.round(calculatedTotalSavings / periodDays) : 0;
-  const sessionsCount = stationVehicles.length * periodDays * 2;
+    return a.currentSOC - b.currentSOC;
+  });
 
-  // Update DOM Elements
-  const totalSavEl = document.getElementById('analytics-total-savings');
-  const costSavedEl = document.getElementById('analytics-cost-saved');
-  const avgDailyEl = document.getElementById('analytics-avg-daily');
-  const sessionsEl = document.getElementById('analytics-sessions-count');
-  const graphTitleEl = document.getElementById('savings-graph-title');
+  // Autonomous Charger Slot Assignment (Max 3 simultaneous fast chargers under 150 kW cap)
+  let activeChargingGuns = 0;
+  const maxSimultaneousGuns = 3;
+  let queuePositionCounter = 1;
 
-  if (totalSavEl) totalSavEl.textContent = `₹${calculatedTotalSavings.toLocaleString()}`;
-  if (costSavedEl) costSavedEl.textContent = `₹${calculatedEnergyCostSaved.toLocaleString()}`;
-  if (avgDailyEl) avgDailyEl.textContent = `₹${avgDaily.toLocaleString()}/day`;
-  if (sessionsEl) sessionsEl.textContent = sessionsCount > 0 ? sessionsCount.toLocaleString() : "0";
-  if (graphTitleEl) graphTitleEl.textContent = title;
+  stationVehicles.forEach(v => {
+    const isFull = v.currentSOC >= v.targetSOC;
 
-  // Update Graph
-  renderSavingsTimelineChart(chartLabels, chartData);
-}
-
-function renderSavingsTimelineChart(labels, data) {
-  const ctx = document.getElementById('savingsTimelineChart');
-  if (!ctx) return;
-
-  if (savingsTimelineChartInstance) {
-    savingsTimelineChartInstance.destroy();
-  }
-
-  savingsTimelineChartInstance = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: 'Cost Savings (₹)',
-        data: data,
-        backgroundColor: '#10b981',
-        borderRadius: 8,
-        barThickness: 28
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        y: {
-          beginAtZero: true,
-          grid: { color: '#f1f5f9' },
-          ticks: { callback: value => '₹' + value }
-        },
-        x: { grid: { display: false } }
+    if (isFull) {
+      v.status = 'completed';
+      v.currentChargingPowerKW = 0;
+      v.assignedCharger = "Completed Bay";
+      v.eta = "Completed ✅";
+    } else if (v.status !== 'in-transit' && activeChargingGuns < maxSimultaneousGuns) {
+      // Highest priority vehicles automatically get chargers
+      v.status = 'charging';
+      activeChargingGuns++;
+      if (v.priority === 'Critical') {
+        v.currentChargingPowerKW = 60;
+        v.assignedCharger = `Charger 01 (Fast 60kW)`;
+      } else if (v.priority === 'High') {
+        v.currentChargingPowerKW = 45;
+        v.assignedCharger = `Charger 02 (Modulated 45kW)`;
+      } else {
+        v.currentChargingPowerKW = 35;
+        v.assignedCharger = `Charger 03 (Standard 35kW)`;
       }
-    }
-  });
-}
-
-// ================= POINT 11, 12, 13, 16, 17: REAL-TIME CROSS-USER SYNC =================
-function initCrossUserSync() {
-  window.addEventListener('storage', (e) => {
-    if (e.key === 'vf_shared_station_fleet_data' || e.key === 'vf_users_db') {
-      loadSharedStationFleet();
-      renderAllViews();
-      if (fleetMap) updateMapMarkers();
+    } else if (v.status !== 'in-transit') {
+      v.status = 'queued';
+      v.currentChargingPowerKW = 0;
+      v.assignedCharger = `Queue Position ${queuePositionCounter++}`;
     }
   });
 
-  setInterval(() => {
-    loadSharedStationFleet();
-  }, 3500);
-}
+  if (countBadge) {
+    const waitingQueue = stationVehicles.filter(v => v.status === 'queued').length;
+    countBadge.textContent = `${waitingQueue} In Queue`;
+  }
 
-function loadSharedStationFleet() {
-  const raw = localStorage.getItem('vf_shared_station_fleet_data');
-  if (raw) {
-    stationVehicles = JSON.parse(raw);
-  } else {
-    stationVehicles = JSON.parse(JSON.stringify(DEMO_PRESET_VEHICLES));
-    saveSharedStationFleet();
+  if (container) {
+    const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣'];
+    const activeAndQueued = stationVehicles.filter(v => v.status === 'charging' || v.status === 'queued');
+
+    container.innerHTML = activeAndQueued.slice(0, 4).map((v, idx) => {
+      const medal = medals[idx] || `${idx + 1}️⃣`;
+      
+      let stateTag = "QUEUED";
+      let stateBg = "bg-slate-100 text-slate-700";
+      if (v.status === 'charging') {
+        stateTag = idx === 0 ? "NOW CHARGING (1st)" : "NOW CHARGING";
+        stateBg = "bg-blue-600 text-white animate-pulse";
+      } else if (idx === 1 || idx === 2) {
+        stateTag = `NEXT (${idx + 1}nd)`;
+        stateBg = "bg-amber-500 text-white";
+      }
+
+      return `
+        <div class="p-3 rounded-xl border ${v.priority === 'Critical' ? 'bg-rose-50/70 border-rose-200' : (v.priority === 'High' ? 'bg-amber-50/70 border-amber-200' : 'bg-slate-50 border-slate-200')} shadow-sm">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-black">${medal} ${v.vehicleId}</span>
+            <span class="px-2 py-0.5 rounded text-[9px] font-bold ${stateBg}">${stateTag}</span>
+          </div>
+          <div class="mt-2 flex items-center justify-between text-xs font-bold text-slate-700">
+            <span>SOC: <strong class="text-blue-600">${v.currentSOC}%</strong></span>
+            ${getPriorityBadge(v.priority)}
+          </div>
+          <div class="mt-1.5 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+            <span class="truncate pr-1">${v.assignedCharger}</span>
+            <span class="font-bold text-slate-800 whitespace-nowrap">${v.currentChargingPowerKW > 0 ? v.currentChargingPowerKW + ' kW' : 'Waiting'}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 }
 
-function saveSharedStationFleet() {
-  localStorage.setItem('vf_shared_station_fleet_data', JSON.stringify(stationVehicles));
-}
-
-// ================= POINT 3: REAL CHARGING PULSE LOOP =================
+// ================= POINT 3 & 4: REAL-TIME CHARGING SIMULATION LOOP =================
 function startRealChargingSimulation() {
   setInterval(() => {
     if (!currentUser || stationVehicles.length === 0) return;
@@ -630,12 +506,13 @@ function startRealChargingSimulation() {
     stationVehicles.forEach(v => {
       if (v.status === 'charging') {
         if (v.currentSOC < v.targetSOC) {
-          v.currentSOC += 1;
+          v.currentSOC += 1; // Increment SOC realistically
           v.currentRangeKM = Math.min(Math.round(v.currentSOC * 3.3), 450);
           v.energyDeliveredKWh = +( (v.energyDeliveredKWh || 0) + 0.4 ).toFixed(1);
           v.priority = calculateAutoPriority(v);
           updated = true;
         } else {
+          // Point 4: Automatically complete and promote next in queue
           v.status = 'completed';
           v.currentChargingPowerKW = 0;
           v.eta = "Completed ✅";
@@ -646,13 +523,9 @@ function startRealChargingSimulation() {
     });
 
     if (updated) {
-      saveSharedStationFleet();
-      updateDashboardKPIs();
-      renderOrchestrationTable();
-      renderVehiclesTable(stationVehicles);
-      renderSchedulesTable();
       updateChargingQueueAndChargers();
-      updateSavingsAnalyticsView();
+      saveSharedStationFleet();
+      renderAllViews();
       
       if (currentSelectedModalVehicleId) {
         updateVehicleModalDynamic(currentSelectedModalVehicleId);
@@ -661,480 +534,7 @@ function startRealChargingSimulation() {
   }, 3500);
 }
 
-// ================= POINT 1: CSV UPLOAD & DUPLICATE CHECKS =================
-function triggerCSVFileInput() {
-  const fileInput = document.getElementById('global-csv-input');
-  if (fileInput) {
-    fileInput.value = '';
-    fileInput.click();
-  }
-}
-
-function downloadSampleCSV() {
-  const headers = "vehicleId,numberPlate,model,batteryCapacity,currentSOC,targetSOC,location,departureTime,status\n";
-  const rows = "EV-101,UP32-EV-7722,Tata Nexon EV Max,40.5,35,90,Hazratganj,07:00 AM,charging\nEV-102,UP32-EV-3311,MG ZS EV,50.3,55,85,Gomti Nagar,08:30 AM,idle\nEV-103,UP32-EV-8844,Mahindra XUV400,39.4,18,90,Charbagh,06:15 AM,charging";
-  const blob = new Blob([headers + rows], { type: "text/csv" });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.setAttribute('href', url);
-  a.setAttribute('download', 'voltflow_sample_fleet.csv');
-  a.click();
-}
-
-function handleCSVUpload(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = function(evt) {
-    const text = evt.target.result;
-    const lines = text.split(/\r\n|\n/);
-    let addedCount = 0;
-    let duplicateErrors = [];
-
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-      const cols = line.split(',');
-
-      if (cols.length >= 7) {
-        const vId = cols[0].trim();
-        const nPlate = cols[1].trim();
-
-        const isDuplicate = stationVehicles.some(v => 
-          v.vehicleId.toLowerCase() === vId.toLowerCase() || 
-          v.licensePlate.toLowerCase() === nPlate.toLowerCase()
-        );
-
-        if (isDuplicate) {
-          duplicateErrors.push(`${vId} (${nPlate})`);
-          continue;
-        }
-
-        const soc = parseInt(cols[4]) || 30;
-        const target = parseInt(cols[5]) || 90;
-        const capacity = parseFloat(cols[3]) || 40.0;
-        const deadline = cols[7] ? cols[7].trim() : "07:30 AM";
-
-        const newVehicle = {
-          vehicleId: vId,
-          licensePlate: nPlate,
-          model: cols[2].trim() || "EV Fleet Car",
-          batteryCapacityKWh: capacity,
-          currentSOC: soc,
-          targetSOC: target,
-          currentRangeKM: Math.round(soc * 3.3),
-          status: (cols[8] && cols[8].trim()) || "charging",
-          assignedStation: cols[6] ? cols[6].trim() : "Hazratganj EV Superhub",
-          stationId: "CS-LKO-01",
-          assignedCharger: "Gun #1 (Auto)",
-          currentChargingPowerKW: (cols[8] && cols[8].trim() === 'idle') ? 0 : 45,
-          departureDeadline: deadline,
-          priority: calculateAutoPriority({ currentSOC: soc, targetSOC: target, departureDeadline: deadline }),
-          eta: "06:30 AM",
-          startTime: "05:15 AM",
-          safetyBuffer: "30 min",
-          energyDeliveredKWh: 0,
-          lat: 26.8467 + (Math.random() * 0.02 - 0.01),
-          lng: 80.9462 + (Math.random() * 0.02 - 0.01)
-        };
-
-        stationVehicles.unshift(newVehicle);
-        addedCount++;
-      }
-    }
-
-    if (addedCount > 0) {
-      saveSharedStationFleet();
-      renderAllViews();
-      if (fleetMap) updateMapMarkers();
-      let msg = `Successfully imported ${addedCount} vehicles!`;
-      if (duplicateErrors.length > 0) {
-        msg += `\n\nBlocked duplicate vehicles:\n${duplicateErrors.join(', ')}`;
-      }
-      alert(msg);
-    } else {
-      if (duplicateErrors.length > 0) {
-        alert(`Upload blocked: Vehicles already exist in the station fleet:\n${duplicateErrors.join(', ')}`);
-      } else {
-        alert('Invalid CSV format. Please use the required columns or download Sample CSV.');
-      }
-    }
-  };
-  reader.readAsText(file);
-}
-
-// ================= POINT 5, 7, 8, 9, 10: IN-PLACE FUNCTIONAL OPTIMIZATION =================
-function triggerSmartOptimization() {
-  runPipeline([
-    { text: "Analyzing Battery SOC & Required Energy Deficit...", pct: 15 },
-    { text: "Calculating Automatic Urgency Scores & Departure Deadlines...", pct: 35 },
-    { text: "Evaluating Multi-Station Tariffs & Off-Peak Shift Savings...", pct: 55 },
-    { text: "Enforcing 150 kW Grid Substation Capacity Limits...", pct: 75 },
-    { text: "Dispatching Optimal Power Allocations to Chargers...", pct: 100 }
-  ], () => {
-    applyOptimizationStateChanges();
-  });
-}
-
-function runLiveSimulation() {
-  runPipeline([
-    { text: "Loading fleet telemetry...", pct: 15 },
-    { text: "Reading battery SOC...", pct: 30 },
-    { text: "Comparing station tariffs (Peak vs Off-Peak)...", pct: 45 },
-    { text: "Checking grid capacity...", pct: 60 },
-    { text: "Checking departure deadlines...", pct: 75 },
-    { text: "Calculating optimal schedule & minimum cost...", pct: 90 },
-    { text: "OPTIMIZATION COMPLETE 🟢", pct: 100 }
-  ], () => {
-    applyOptimizationStateChanges();
-  });
-}
-
-function applyOptimizationStateChanges() {
-  stationVehicles.forEach(v => {
-    v.priority = calculateAutoPriority(v);
-  });
-
-  const priorityWeight = { 'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4 };
-  stationVehicles.sort((a, b) => (priorityWeight[a.priority] || 4) - (priorityWeight[b.priority] || 4));
-
-  let accumulatedLoadKW = 0;
-  stationVehicles.forEach((v, idx) => {
-    if (v.status !== 'completed') {
-      if (v.priority === 'Critical') {
-        v.status = 'charging';
-        v.currentChargingPowerKW = 60;
-        v.assignedCharger = `Charger 01 (High-Power 60kW)`;
-        accumulatedLoadKW += 60;
-      } else if (v.priority === 'High') {
-        v.status = 'charging';
-        v.currentChargingPowerKW = 45;
-        v.assignedCharger = `Charger 02 (Modulated 45kW)`;
-        accumulatedLoadKW += 45;
-      } else if (accumulatedLoadKW + 30 <= 135) {
-        v.status = 'charging';
-        v.currentChargingPowerKW = 30;
-        v.assignedCharger = `Charger 03 (Standard 30kW)`;
-        accumulatedLoadKW += 30;
-      } else {
-        v.status = 'queued';
-        v.currentChargingPowerKW = 0;
-        v.assignedCharger = `Queue Bay #${idx + 1}`;
-      }
-    }
-  });
-
-  saveSharedStationFleet();
-  renderAllViews();
-  updateChargingQueueAndChargers();
-  updateSavingsAnalyticsView();
-}
-
-function runPipeline(steps, onComplete) {
-  const box = document.getElementById('sim-progress-box');
-  const text = document.getElementById('sim-step-text');
-  const bar = document.getElementById('sim-progress-bar');
-  const pct = document.getElementById('sim-step-percent');
-  const btn1 = document.getElementById('btn-smart-opt');
-  const btn2 = document.getElementById('btn-live-sim');
-
-  box.classList.remove('hidden');
-  btn1.disabled = true;
-  btn2.disabled = true;
-
-  let i = 0;
-  const timer = setInterval(() => {
-    if (i < steps.length) {
-      text.innerHTML = `<span class="w-2 h-2 rounded-full bg-blue-600 animate-ping mr-2"></span> ${steps[i].text}`;
-      bar.style.width = `${steps[i].pct}%`;
-      pct.textContent = `${steps[i].pct}%`;
-      i++;
-    } else {
-      clearInterval(timer);
-      setTimeout(() => {
-        btn1.disabled = false;
-        btn2.disabled = false;
-        if (onComplete) onComplete();
-      }, 350);
-    }
-  }, 450);
-}
-
-// ================= VEHICLE ADD & DELETE HANDLERS =================
-function openAddVehicleModal() {
-  document.getElementById('add-vehicle-modal').classList.remove('hidden');
-}
-
-function closeAddVehicleModal() {
-  document.getElementById('add-vehicle-modal').classList.add('hidden');
-}
-
-function handleCreateVehicle(e) {
-  e.preventDefault();
-  const vId = document.getElementById('new-vehicle-id').value.trim();
-  const nPlate = document.getElementById('new-license-plate').value.trim();
-
-  const isDuplicate = stationVehicles.some(v => 
-    v.vehicleId.toLowerCase() === vId.toLowerCase() || 
-    v.licensePlate.toLowerCase() === nPlate.toLowerCase()
-  );
-
-  if (isDuplicate) {
-    alert(`Vehicle already registered at this station (ID: ${vId} or Plate: ${nPlate}). Duplicate vehicles are blocked.`);
-    return;
-  }
-
-  const soc = parseInt(document.getElementById('new-soc').value);
-  const target = parseInt(document.getElementById('new-target-soc').value);
-  const deadline = document.getElementById('new-deadline').value.trim();
-  const stationId = document.getElementById('new-station').value;
-  const station = fleetStations.find(s => s.id === stationId);
-
-  const autoPriority = calculateAutoPriority({ currentSOC: soc, targetSOC: target, departureDeadline: deadline });
-
-  const newEV = {
-    vehicleId: vId,
-    licensePlate: nPlate,
-    model: document.getElementById('new-model').value.trim(),
-    batteryCapacityKWh: parseFloat(document.getElementById('new-capacity').value),
-    currentSOC: soc,
-    targetSOC: target,
-    currentRangeKM: Math.round(soc * 3.3),
-    status: document.getElementById('new-status').value,
-    assignedStation: station ? station.name : "Hazratganj EV Superhub",
-    stationId: stationId,
-    assignedCharger: "Gun #1 (Auto)",
-    currentChargingPowerKW: document.getElementById('new-status').value === 'charging' ? 45 : 0,
-    departureDeadline: deadline,
-    priority: autoPriority,
-    eta: "06:15 AM",
-    startTime: "05:00 AM",
-    safetyBuffer: "30 min",
-    energyDeliveredKWh: 0,
-    lat: station ? station.lat + (Math.random() * 0.005) : 26.8467,
-    lng: station ? station.lng + (Math.random() * 0.005) : 80.9462
-  };
-
-  stationVehicles.unshift(newEV);
-  saveSharedStationFleet();
-  closeAddVehicleModal();
-  document.getElementById('add-vehicle-form').reset();
-  renderAllViews();
-  if (fleetMap) updateMapMarkers();
-  alert(`Vehicle ${newEV.vehicleId} registered successfully! Auto-Priority calculated: ${autoPriority}`);
-}
-
-function openDeleteModal(vehicleId) {
-  vehicleToDeleteId = vehicleId;
-  document.getElementById('delete-vehicle-id-text').textContent = vehicleId;
-  document.getElementById('delete-vehicle-modal').classList.remove('hidden');
-}
-
-function closeDeleteModal() {
-  document.getElementById('delete-vehicle-modal').classList.add('hidden');
-  vehicleToDeleteId = null;
-}
-
-function confirmDeleteVehicle() {
-  if (!vehicleToDeleteId) return;
-  stationVehicles = stationVehicles.filter(v => v.vehicleId !== vehicleToDeleteId);
-  saveSharedStationFleet();
-  closeDeleteModal();
-  renderAllViews();
-  if (fleetMap) updateMapMarkers();
-}
-
-// ================= POINT 13, 14, 15, 16, 17: ALL USERS & ROLES TABLE =================
-function renderUsersTable() {
-  const users = JSON.parse(localStorage.getItem('vf_users_db') || '[]');
-  const tbody = document.getElementById('users-table-body');
-  const onlineCountEl = document.getElementById('users-online-count');
-  const totalCountEl = document.getElementById('users-total-count');
-  const badgeEl = document.getElementById('sidebar-online-users-badge');
-
-  if (totalCountEl) totalCountEl.textContent = `Total: ${users.length} Users`;
-
-  const currentEmail = currentUser ? currentUser.email.toLowerCase() : "";
-  let onlineCount = 0;
-
-  if (tbody) {
-    tbody.innerHTML = users.map(u => {
-      const isOnline = (u.email.toLowerCase() === currentEmail);
-      if (isOnline) onlineCount++;
-      return `
-        <tr class="hover:bg-slate-50 transition-colors">
-          <td class="py-3 px-4 font-bold text-slate-900">${u.name}</td>
-          <td class="py-3 px-4 text-slate-500 font-mono text-[11px]">${u.email}</td>
-          <td class="py-3 px-4">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'admin' || u.role === 'Admin' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'}">
-              ${(u.role || 'Operator').toUpperCase()}
-            </span>
-          </td>
-          <td class="py-3 px-4 text-slate-700 font-semibold">${u.fleetName || "Hazratganj EV Superhub"}</td>
-          <td class="py-3 px-4 text-slate-500">${isOnline ? 'Just now' : '15 min ago'}</td>
-          <td class="py-3 px-4 text-right">
-            ${isOnline 
-              ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 flex items-center justify-end w-fit ml-auto"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>Online</span>'
-              : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">⚪ Offline</span>'
-            }
-          </td>
-        </tr>
-      `;
-    }).join('');
-  }
-
-  if (onlineCountEl) onlineCountEl.textContent = onlineCount;
-  if (badgeEl) badgeEl.textContent = `${onlineCount} Online`;
-}
-
-// ================= AUTHENTICATION HANDLERS =================
-function initUsersDatabase() {
-  if (!localStorage.getItem('vf_users_db')) {
-    const initialUsers = [
-      {
-        name: "Mayank Tiwari",
-        email: DEMO_ACCOUNT_EMAIL,
-        password: "adminpassword123",
-        role: "Admin",
-        fleetName: "Lucknow Central Cluster"
-      },
-      {
-        name: "Rahul Verma",
-        email: "rahul.operator@voltflow.io",
-        password: "password123",
-        role: "Operator",
-        fleetName: "Hazratganj EV Superhub"
-      },
-      {
-        name: "Amit Sharma",
-        email: "amit.manager@voltflow.io",
-        password: "password123",
-        role: "Fleet Manager",
-        fleetName: "Gomti Nagar Cyber Tower"
-      }
-    ];
-    localStorage.setItem('vf_users_db', JSON.stringify(initialUsers));
-  }
-}
-
-function checkAuthSession() {
-  const session = localStorage.getItem('voltflow_session_user');
-  const authModal = document.getElementById('auth-modal-container');
-
-  if (session) {
-    currentUser = JSON.parse(session);
-    authModal.classList.add('hidden');
-    loadSharedStationFleet();
-    updateUserInterfaceHeaders();
-    renderAllViews();
-    initMap();
-    initAllCharts();
-  } else {
-    currentUser = null;
-    authModal.classList.remove('hidden');
-  }
-}
-
-function toggleAuthView(view) {
-  if (view === 'signup') {
-    document.getElementById('login-view').classList.add('hidden');
-    document.getElementById('signup-view').classList.remove('hidden');
-  } else {
-    document.getElementById('signup-view').classList.add('hidden');
-    document.getElementById('login-view').classList.remove('hidden');
-  }
-  lucide.createIcons();
-}
-
-function handleLogin(e) {
-  e.preventDefault();
-  const email = document.getElementById('login-email').value.trim().toLowerCase();
-  const password = document.getElementById('login-password').value;
-
-  const users = JSON.parse(localStorage.getItem('vf_users_db') || '[]');
-  const matchedUser = users.find(u => u.email.toLowerCase() === email && u.password === password);
-
-  if (matchedUser) {
-    currentUser = matchedUser;
-    localStorage.setItem('voltflow_session_user', JSON.stringify(matchedUser));
-    document.getElementById('auth-modal-container').classList.add('hidden');
-    loadSharedStationFleet();
-    updateUserInterfaceHeaders();
-    renderAllViews();
-    initMap();
-    initAllCharts();
-  } else {
-    alert('Invalid email or password. Please check credentials or create an account.');
-  }
-}
-
-function handleSignup(e) {
-  e.preventDefault();
-  const name = document.getElementById('signup-name').value.trim();
-  const email = document.getElementById('signup-email').value.trim().toLowerCase();
-  const role = document.getElementById('signup-role').value;
-  const password = document.getElementById('signup-password').value;
-  const confirmPassword = document.getElementById('signup-confirm-password').value;
-
-  if (password !== confirmPassword) {
-    alert('Passwords do not match. Please re-enter.');
-    return;
-  }
-
-  const users = JSON.parse(localStorage.getItem('vf_users_db') || '[]');
-  if (users.some(u => u.email.toLowerCase() === email)) {
-    alert('An account with this email already exists. Please login.');
-    return;
-  }
-
-  const newUser = {
-    name: name,
-    email: email,
-    password: password,
-    role: role,
-    fleetName: "Lucknow Station Node"
-  };
-
-  users.push(newUser);
-  localStorage.setItem('vf_users_db', JSON.stringify(users));
-
-  currentUser = newUser;
-  localStorage.setItem('voltflow_session_user', JSON.stringify(newUser));
-  document.getElementById('auth-modal-container').classList.add('hidden');
-  
-  loadSharedStationFleet();
-  updateUserInterfaceHeaders();
-  renderAllViews();
-  initMap();
-  initAllCharts();
-}
-
-function handleLogout() {
-  localStorage.removeItem('voltflow_session_user');
-  currentUser = null;
-  document.getElementById('login-form').reset();
-  document.getElementById('signup-form').reset();
-  toggleAuthView('login');
-  document.getElementById('auth-modal-container').classList.remove('hidden');
-  renderUsersTable();
-}
-
-function updateUserInterfaceHeaders() {
-  if (!currentUser) return;
-  const userNameEl = document.getElementById('sidebar-user-name');
-  const userEmailEl = document.getElementById('sidebar-user-email');
-  const userInitialsEl = document.getElementById('sidebar-avatar-initials');
-
-  if (userNameEl) userNameEl.textContent = currentUser.name;
-  if (userEmailEl) userEmailEl.textContent = currentUser.email;
-  if (userInitialsEl) {
-    const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
-    userInitialsEl.textContent = initials.substring(0, 2) || 'VF';
-  }
-}
-
-// ================= KPI & DASHBOARD CALCULATIONS =================
+// ================= POINT 7, 8, 9: REAL-TIME METRICS & TOP CARDS UPDATE =================
 function updateDashboardKPIs() {
   const total = stationVehicles.length;
   const charging = stationVehicles.filter(v => v.status === 'charging').length;
@@ -1147,9 +547,10 @@ function updateDashboardKPIs() {
   const currentTotalLoadKW = stationVehicles.reduce((acc, v) => acc + (v.currentChargingPowerKW || 0), 0);
   const headroomKW = Math.max(0, 150 - currentTotalLoadKW);
 
-  const totalSavings = stationVehicles.reduce((acc, v) => {
-    const cost = calculateChargingCost(v);
-    return acc + (cost.estimatedSaving || 0);
+  // Point 7 & 8: Real-time Calculated Fleet Savings
+  const totalCalculatedSavings = stationVehicles.reduce((acc, v) => {
+    const costData = calculateChargingCost(v);
+    return acc + costData.estimatedSaving;
   }, 0);
 
   const headerLoad = document.getElementById('header-grid-load');
@@ -1176,8 +577,16 @@ function updateDashboardKPIs() {
   const avgSocEl = document.getElementById('dash-kpi-avg-soc');
   if (avgSocEl) avgSocEl.textContent = `${avgSOC}%`;
 
+  // Point 8: Top Savings Card Update with Real Calculated Value
   const savingsEl = document.getElementById('dash-kpi-savings');
-  if (savingsEl) savingsEl.textContent = totalSavings > 0 ? `₹${totalSavings.toLocaleString()}` : '₹0';
+  if (savingsEl) {
+    savingsEl.textContent = totalCalculatedSavings > 0 ? `₹${totalCalculatedSavings.toLocaleString()}` : '₹0';
+  }
+
+  const impactSavingsEl = document.getElementById('impact-card-savings');
+  if (impactSavingsEl) {
+    impactSavingsEl.textContent = totalCalculatedSavings > 0 ? `₹${totalCalculatedSavings.toLocaleString()} Saved` : '₹0';
+  }
 
   const emptyState = document.getElementById('dashboard-empty-state');
   const dataView = document.getElementById('dashboard-data-view');
@@ -1240,14 +649,501 @@ function updateBeforeAfterSection(managedLoadKW) {
       managedList.innerHTML = stationVehicles.slice(0, 3).map(v => `
         <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-emerald-100 font-medium">
           <span>${v.vehicleId} • Dep: ${v.departureDeadline}</span>
-          <span class="font-bold text-blue-600">${v.currentChargingPowerKW} kW (Optimized)</span>
+          <span class="font-bold text-blue-600">${v.currentChargingPowerKW} kW (${v.assignedCharger.split(' ')[0]})</span>
         </div>
       `).join('');
     }
   }
 }
 
-// ================= RENDER HELPERS =================
+// ================= POINT 9: OPTIMAL DISPATCH MATRIX RENDERER =================
+function renderOrchestrationTable() {
+  const tbody = document.getElementById('orchestration-table-body');
+  if (!tbody) return;
+
+  if (stationVehicles.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-400">No vehicles available. Add vehicles to see optimized dispatch.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = stationVehicles.map(v => {
+    const costData = calculateChargingCost(v);
+    
+    const costText = costData.isComplete 
+      ? '<span class="text-slate-400 font-medium">Full Battery</span>' 
+      : `₹${costData.estimatedCost}`;
+      
+    const savingText = costData.isComplete 
+      ? '<span class="text-slate-400 font-medium">No Top-Up</span>' 
+      : `<span class="font-black text-emerald-600">+₹${costData.estimatedSaving}</span>`;
+
+    return `
+      <tr class="hover:bg-slate-50 transition-colors">
+        <td class="py-3 px-4">
+          <div class="font-bold text-slate-900">${v.vehicleId}</div>
+          <div class="text-[10px] text-slate-400 font-medium">${v.model}</div>
+        </td>
+        <td class="py-3 px-4">${getPriorityBadge(v.priority)}</td>
+        <td class="py-3 px-4 font-semibold text-slate-800">${v.assignedStation}</td>
+        <td class="py-3 px-4 font-bold ${v.currentChargingPowerKW > 0 ? 'text-blue-600' : 'text-slate-400'}">${v.currentChargingPowerKW} kW</td>
+        <td class="py-3 px-4 text-slate-700 font-bold">${costData.energyRequired} kWh</td>
+        <td class="py-3 px-4 text-slate-700 font-semibold">₹${costData.pricePerKWh}/kWh</td>
+        <td class="py-3 px-4 font-black text-slate-800">${costText}</td>
+        <td class="py-3 px-4">${savingText}</td>
+        <td class="py-3 px-4 text-rose-600 font-semibold">${v.departureDeadline}</td>
+        <td class="py-3 px-4 text-right">
+          <button onclick="openVehicleModal('${v.vehicleId}')" class="text-blue-600 font-bold hover:underline">Details</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ================= POINT 8, 9, 10: SAVINGS FILTER & TIMELINE GRAPH =================
+let currentSavingsFilter = "30days";
+
+function handleSavingsDateFilterChange() {
+  const filterVal = document.getElementById('savings-date-filter').value;
+  currentSavingsFilter = filterVal;
+  const customInputs = document.getElementById('custom-date-inputs');
+
+  if (filterVal === 'custom') {
+    customInputs.classList.remove('hidden');
+  } else {
+    customInputs.classList.add('hidden');
+    updateSavingsAnalyticsView();
+  }
+}
+
+function applyCustomDateSavings() {
+  updateSavingsAnalyticsView();
+}
+
+function updateSavingsAnalyticsView() {
+  const currentFleetSavings = stationVehicles.reduce((acc, v) => acc + calculateChargingCost(v).estimatedSaving, 0);
+  
+  let multiplier = 1;
+  let periodDays = 30;
+  let title = "Charging Cost Savings — Last 30 Days";
+  let chartLabels = [];
+  let chartData = [];
+
+  switch (currentSavingsFilter) {
+    case 'today':
+      multiplier = 1;
+      periodDays = 1;
+      title = "Charging Cost Savings — Today (18 Aug 2026)";
+      chartLabels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
+      chartData = [120, 180, 240, 160, 310, 280].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 200) : 1)));
+      break;
+    case 'yesterday':
+      multiplier = 0.95;
+      periodDays = 1;
+      title = "Charging Cost Savings — Yesterday";
+      chartLabels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
+      chartData = [110, 170, 220, 150, 290, 260].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 200) : 1)));
+      break;
+    case '7days':
+      multiplier = 7;
+      periodDays = 7;
+      title = "Charging Cost Savings — Last 7 Days";
+      chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      chartData = [450, 520, 610, 480, 720, 680, 590].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 150) : 1)));
+      break;
+    case '30days':
+      multiplier = 30;
+      periodDays = 30;
+      title = "Charging Cost Savings — Last 30 Days";
+      chartLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
+      chartData = [3400, 4200, 4800, 5250].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 100) : 1)));
+      break;
+    case '3months':
+      multiplier = 90;
+      periodDays = 90;
+      title = "Charging Cost Savings — Last 3 Months";
+      chartLabels = ['June 2026', 'July 2026', 'August 2026'];
+      chartData = [14200, 16800, 18450].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 80) : 1)));
+      break;
+    case '6months':
+      multiplier = 180;
+      periodDays = 180;
+      title = "Charging Cost Savings — Last 6 Months";
+      chartLabels = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
+      chartData = [11200, 13400, 15100, 16800, 17900, 18450].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 80) : 1)));
+      break;
+    case '1year':
+      multiplier = 365;
+      periodDays = 365;
+      title = "Charging Cost Savings — Last 1 Year";
+      chartLabels = ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025', 'Q1 2026', 'Q2 2026'];
+      chartData = [28000, 34000, 42000, 48000, 54000, 62000].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 60) : 1)));
+      break;
+    default:
+      multiplier = 15;
+      periodDays = 15;
+      title = "Charging Cost Savings — Custom Range";
+      chartLabels = ['P1', 'P2', 'P3', 'P4'];
+      chartData = [2100, 2800, 3400, 3900];
+  }
+
+  const calculatedTotalSavings = stationVehicles.length > 0 
+    ? Math.round(currentFleetSavings * (multiplier / 2) + 1240) 
+    : 0;
+  
+  const calculatedEnergyCostSaved = Math.round(calculatedTotalSavings * 0.85);
+  const avgDaily = periodDays > 0 ? Math.round(calculatedTotalSavings / periodDays) : 0;
+  const sessionsCount = stationVehicles.length * periodDays * 2;
+
+  const totalSavEl = document.getElementById('analytics-total-savings');
+  const costSavedEl = document.getElementById('analytics-cost-saved');
+  const avgDailyEl = document.getElementById('analytics-avg-daily');
+  const sessionsEl = document.getElementById('analytics-sessions-count');
+  const graphTitleEl = document.getElementById('savings-graph-title');
+
+  if (totalSavEl) totalSavEl.textContent = `₹${calculatedTotalSavings.toLocaleString()}`;
+  if (costSavedEl) costSavedEl.textContent = `₹${calculatedEnergyCostSaved.toLocaleString()}`;
+  if (avgDailyEl) avgDailyEl.textContent = `₹${avgDaily.toLocaleString()}/day`;
+  if (sessionsEl) sessionsEl.textContent = sessionsCount > 0 ? sessionsCount.toLocaleString() : "0";
+  if (graphTitleEl) graphTitleEl.textContent = title;
+
+  renderSavingsTimelineChart(chartLabels, chartData);
+}
+
+function renderSavingsTimelineChart(labels, data) {
+  const ctx = document.getElementById('savingsTimelineChart');
+  if (!ctx) return;
+
+  if (savingsTimelineChartInstance) {
+    savingsTimelineChartInstance.destroy();
+  }
+
+  savingsTimelineChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Cost Savings (₹)',
+        data: data,
+        backgroundColor: '#10b981',
+        borderRadius: 8,
+        barThickness: 28
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: '#f1f5f9' },
+          ticks: { callback: value => '₹' + value }
+        },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+}
+
+// ================= CLOCK & AUTH =================
+function startGlobalClock() {
+  function updateClock() {
+    const now = new Date();
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    const dateStr = now.toLocaleDateString('en-GB', options);
+    const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+    const dateEl = document.getElementById('global-dynamic-date');
+    const timeEl = document.getElementById('global-dynamic-time');
+    const dashDateEl = document.getElementById('dash-date-badge');
+
+    if (dateEl) dateEl.textContent = dateStr;
+    if (timeEl) timeEl.textContent = timeStr;
+    if (dashDateEl) dashDateEl.textContent = dateStr;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+}
+
+function initCrossUserSync() {
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'vf_shared_station_fleet_data' || e.key === 'vf_users_db') {
+      loadSharedStationFleet();
+      renderAllViews();
+      if (fleetMap) updateMapMarkers();
+    }
+  });
+
+  setInterval(() => {
+    loadSharedStationFleet();
+  }, 3500);
+}
+
+function loadSharedStationFleet() {
+  const raw = localStorage.getItem('vf_shared_station_fleet_data');
+  if (raw) {
+    stationVehicles = JSON.parse(raw);
+  } else {
+    stationVehicles = JSON.parse(JSON.stringify(DEMO_PRESET_VEHICLES));
+    saveSharedStationFleet();
+  }
+}
+
+function saveSharedStationFleet() {
+  localStorage.setItem('vf_shared_station_fleet_data', JSON.stringify(stationVehicles));
+}
+
+// ================= CSV UPLOAD =================
+function triggerCSVFileInput() {
+  const fileInput = document.getElementById('global-csv-input');
+  if (fileInput) {
+    fileInput.value = '';
+    fileInput.click();
+  }
+}
+
+function downloadSampleCSV() {
+  const headers = "vehicleId,numberPlate,model,batteryCapacity,currentSOC,targetSOC,location,departureTime,status\n";
+  const rows = "EV-101,UP32-EV-7722,Tata Nexon EV Max,40.5,35,90,Hazratganj,1 hour,charging\nEV-102,UP32-EV-3311,MG ZS EV,50.3,55,85,Gomti Nagar,3.5 hours,idle\nEV-103,UP32-EV-8844,Mahindra XUV400,39.4,15,90,Charbagh,30 min,charging";
+  const blob = new Blob([headers + rows], { type: "text/csv" });
+  const url = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.setAttribute('href', url);
+  a.setAttribute('download', 'voltflow_sample_fleet.csv');
+  a.click();
+}
+
+function handleCSVUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    const text = evt.target.result;
+    const lines = text.split(/\r\n|\n/);
+    let addedCount = 0;
+    let duplicateErrors = [];
+
+    for (let i = 1; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (!line) continue;
+      const cols = line.split(',');
+
+      if (cols.length >= 7) {
+        const vId = cols[0].trim();
+        const nPlate = cols[1].trim();
+
+        const isDuplicate = stationVehicles.some(v => 
+          v.vehicleId.toLowerCase() === vId.toLowerCase() || 
+          v.licensePlate.toLowerCase() === nPlate.toLowerCase()
+        );
+
+        if (isDuplicate) {
+          duplicateErrors.push(`${vId} (${nPlate})`);
+          continue;
+        }
+
+        const soc = parseInt(cols[4]) || 30;
+        const target = parseInt(cols[5]) || 90;
+        const capacity = parseFloat(cols[3]) || 40.0;
+        const deadline = cols[7] ? cols[7].trim() : "2 hours";
+
+        const newVehicle = {
+          vehicleId: vId,
+          licensePlate: nPlate,
+          model: cols[2].trim() || "EV Fleet Car",
+          batteryCapacityKWh: capacity,
+          currentSOC: soc,
+          targetSOC: target,
+          currentRangeKM: Math.round(soc * 3.3),
+          status: (cols[8] && cols[8].trim()) || "queued",
+          assignedStation: cols[6] ? cols[6].trim() : "Hazratganj EV Superhub",
+          stationId: "CS-LKO-01",
+          assignedCharger: "Queue",
+          currentChargingPowerKW: 0,
+          departureDeadline: deadline,
+          priority: calculateAutoPriority({ currentSOC: soc, targetSOC: target, departureDeadline: deadline }),
+          eta: "06:30 AM",
+          startTime: "05:15 AM",
+          safetyBuffer: "30 min",
+          energyDeliveredKWh: 0,
+          lat: 26.8467 + (Math.random() * 0.02 - 0.01),
+          lng: 80.9462 + (Math.random() * 0.02 - 0.01)
+        };
+
+        stationVehicles.unshift(newVehicle);
+        addedCount++;
+      }
+    }
+
+    if (addedCount > 0) {
+      updateChargingQueueAndChargers();
+      saveSharedStationFleet();
+      renderAllViews();
+      if (fleetMap) updateMapMarkers();
+      let msg = `Successfully imported ${addedCount} vehicles!`;
+      if (duplicateErrors.length > 0) {
+        msg += `\n\nBlocked duplicate vehicles:\n${duplicateErrors.join(', ')}`;
+      }
+      alert(msg);
+    } else {
+      if (duplicateErrors.length > 0) {
+        alert(`Upload blocked: Vehicles already exist in the station fleet:\n${duplicateErrors.join(', ')}`);
+      } else {
+        alert('Invalid CSV format. Please use the required columns or download Sample CSV.');
+      }
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ================= IN-PLACE OPTIMIZATION =================
+function triggerSmartOptimization() {
+  runPipeline([
+    { text: "Analyzing Battery SOC & Required Energy Deficit...", pct: 15 },
+    { text: "Calculating Automatic Urgency Scores & Departure Deadlines...", pct: 35 },
+    { text: "Evaluating Multi-Station Tariffs & Off-Peak Shift Savings...", pct: 55 },
+    { text: "Enforcing 150 kW Grid Substation Capacity Limits...", pct: 75 },
+    { text: "Dispatching Optimal Power Allocations to Chargers...", pct: 100 }
+  ], () => {
+    updateChargingQueueAndChargers();
+    saveSharedStationFleet();
+    renderAllViews();
+  });
+}
+
+function runLiveSimulation() {
+  runPipeline([
+    { text: "Loading fleet telemetry...", pct: 15 },
+    { text: "Reading battery SOC...", pct: 30 },
+    { text: "Comparing station tariffs (Peak vs Off-Peak)...", pct: 45 },
+    { text: "Checking grid capacity...", pct: 60 },
+    { text: "Checking departure deadlines...", pct: 75 },
+    { text: "Calculating optimal schedule & minimum cost...", pct: 90 },
+    { text: "OPTIMIZATION COMPLETE 🟢", pct: 100 }
+  ], () => {
+    updateChargingQueueAndChargers();
+    saveSharedStationFleet();
+    renderAllViews();
+  });
+}
+
+function runPipeline(steps, onComplete) {
+  const box = document.getElementById('sim-progress-box');
+  const text = document.getElementById('sim-step-text');
+  const bar = document.getElementById('sim-progress-bar');
+  const pct = document.getElementById('sim-step-percent');
+  const btn1 = document.getElementById('btn-smart-opt');
+  const btn2 = document.getElementById('btn-live-sim');
+
+  box.classList.remove('hidden');
+  btn1.disabled = true;
+  btn2.disabled = true;
+
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i < steps.length) {
+      text.innerHTML = `<span class="w-2 h-2 rounded-full bg-blue-600 animate-ping mr-2"></span> ${steps[i].text}`;
+      bar.style.width = `${steps[i].pct}%`;
+      pct.textContent = `${steps[i].pct}%`;
+      i++;
+    } else {
+      clearInterval(timer);
+      setTimeout(() => {
+        btn1.disabled = false;
+        btn2.disabled = false;
+        if (onComplete) onComplete();
+      }, 350);
+    }
+  }, 450);
+}
+
+// ================= CRUD =================
+function openAddVehicleModal() {
+  document.getElementById('add-vehicle-modal').classList.remove('hidden');
+}
+
+function closeAddVehicleModal() {
+  document.getElementById('add-vehicle-modal').classList.add('hidden');
+}
+
+function handleCreateVehicle(e) {
+  e.preventDefault();
+  const vId = document.getElementById('new-vehicle-id').value.trim();
+  const nPlate = document.getElementById('new-license-plate').value.trim();
+
+  const isDuplicate = stationVehicles.some(v => 
+    v.vehicleId.toLowerCase() === vId.toLowerCase() || 
+    v.licensePlate.toLowerCase() === nPlate.toLowerCase()
+  );
+
+  if (isDuplicate) {
+    alert(`Vehicle already registered at this station (ID: ${vId} or Plate: ${nPlate}). Duplicate vehicles are blocked.`);
+    return;
+  }
+
+  const soc = parseInt(document.getElementById('new-soc').value);
+  const target = parseInt(document.getElementById('new-target-soc').value);
+  const deadline = document.getElementById('new-deadline').value.trim();
+  const stationId = document.getElementById('new-station').value;
+  const station = fleetStations.find(s => s.id === stationId);
+
+  const autoPriority = calculateAutoPriority({ currentSOC: soc, targetSOC: target, departureDeadline: deadline });
+
+  const newEV = {
+    vehicleId: vId,
+    licensePlate: nPlate,
+    model: document.getElementById('new-model').value.trim(),
+    batteryCapacityKWh: parseFloat(document.getElementById('new-capacity').value),
+    currentSOC: soc,
+    targetSOC: target,
+    currentRangeKM: Math.round(soc * 3.3),
+    status: document.getElementById('new-status').value,
+    assignedStation: station ? station.name : "Hazratganj EV Superhub",
+    stationId: stationId,
+    assignedCharger: "Auto Queue",
+    currentChargingPowerKW: 0,
+    departureDeadline: deadline,
+    priority: autoPriority,
+    eta: "06:15 AM",
+    startTime: "05:00 AM",
+    safetyBuffer: "30 min",
+    energyDeliveredKWh: 0,
+    lat: station ? station.lat + (Math.random() * 0.005) : 26.8467,
+    lng: station ? station.lng + (Math.random() * 0.005) : 80.9462
+  };
+
+  stationVehicles.unshift(newEV);
+  updateChargingQueueAndChargers();
+  saveSharedStationFleet();
+  closeAddVehicleModal();
+  document.getElementById('add-vehicle-form').reset();
+  renderAllViews();
+  if (fleetMap) updateMapMarkers();
+  alert(`Vehicle ${newEV.vehicleId} registered successfully! Auto-Priority calculated: ${autoPriority}`);
+}
+
+function openDeleteModal(vehicleId) {
+  vehicleToDeleteId = vehicleId;
+  document.getElementById('delete-vehicle-id-text').textContent = vehicleId;
+  document.getElementById('delete-vehicle-modal').classList.remove('hidden');
+}
+
+function closeDeleteModal() {
+  document.getElementById('delete-vehicle-modal').classList.add('hidden');
+  vehicleToDeleteId = null;
+}
+
+function confirmDeleteVehicle() {
+  if (!vehicleToDeleteId) return;
+  stationVehicles = stationVehicles.filter(v => v.vehicleId !== vehicleToDeleteId);
+  updateChargingQueueAndChargers();
+  saveSharedStationFleet();
+  closeDeleteModal();
+  renderAllViews();
+  if (fleetMap) updateMapMarkers();
+}
+
+// ================= RENDER VIEWS =================
 function renderAllViews() {
   updateDashboardKPIs();
   renderOrchestrationTable();
@@ -1274,39 +1170,6 @@ function getStatusBadge(status) {
   if (status === 'queued') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700">⏳ Queued</span>';
   if (status === 'in-transit') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-purple-100 text-purple-700">🚗 En-Route</span>';
   return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">💤 Standby</span>';
-}
-
-function renderOrchestrationTable() {
-  const tbody = document.getElementById('orchestration-table-body');
-  if (!tbody) return;
-
-  if (stationVehicles.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-400">No vehicles available. Add vehicles to see optimized dispatch.</td></tr>`;
-    return;
-  }
-
-  tbody.innerHTML = stationVehicles.map(v => {
-    const costData = calculateChargingCost(v);
-    return `
-      <tr class="hover:bg-slate-50 transition-colors">
-        <td class="py-3 px-4">
-          <div class="font-bold text-slate-900">${v.vehicleId}</div>
-          <div class="text-[10px] text-slate-400 font-medium">${v.model}</div>
-        </td>
-        <td class="py-3 px-4">${getPriorityBadge(v.priority)}</td>
-        <td class="py-3 px-4 font-semibold text-slate-800">${v.assignedStation}</td>
-        <td class="py-3 px-4 font-bold ${v.currentChargingPowerKW > 0 ? 'text-blue-600' : 'text-slate-400'}">${v.currentChargingPowerKW} kW</td>
-        <td class="py-3 px-4 text-slate-700 font-bold">${costData.energyRequired} kWh</td>
-        <td class="py-3 px-4 text-slate-700 font-semibold">₹${costData.pricePerKWh}/kWh</td>
-        <td class="py-3 px-4 font-black text-slate-800">₹${costData.estimatedCost}</td>
-        <td class="py-3 px-4 font-black text-emerald-600">+₹${costData.estimatedSaving}</td>
-        <td class="py-3 px-4 text-rose-600 font-semibold">${v.departureDeadline}</td>
-        <td class="py-3 px-4 text-right">
-          <button onclick="openVehicleModal('${v.vehicleId}')" class="text-blue-600 font-bold hover:underline">Details</button>
-        </td>
-      </tr>
-    `;
-  }).join('');
 }
 
 function renderVehiclesTable(vehicles) {
@@ -1451,10 +1314,10 @@ function renderAlerts() {
         </div>
         <p class="text-xs text-slate-600 mt-1">${a.message}</p>
         <div class="mt-2 text-xs font-semibold text-slate-700">
-          Recommended: <span class="text-blue-600 font-bold">"${a.actionTitle}"</span> • Power: <span class="font-bold">${a.power}</span> • Tariff: <span class="font-bold text-emerald-600">${a.rate}</span>
+          Action: <span class="text-blue-600 font-bold">"${a.actionTitle}"</span> • Target: <span class="font-bold">${a.target}</span> • Power: <span class="font-bold text-emerald-600">${a.power}</span>
         </div>
       </div>
-      <button onclick="applyAlertRecommendation('${a.id}')" class="touch-btn px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl whitespace-nowrap shadow-sm">
+      <button onclick="alert('Optimal charger configuration applied.')" class="touch-btn px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl whitespace-nowrap shadow-sm">
         APPLY RECOMMENDATION
       </button>
     </div>
@@ -1462,11 +1325,49 @@ function renderAlerts() {
   lucide.createIcons();
 }
 
-function applyAlertRecommendation(id) {
-  alert(`Recommendation dispatched to OCPP hub for ${id}. Fast Gun reserved.`);
+function renderUsersTable() {
+  const users = JSON.parse(localStorage.getItem('vf_users_db') || '[]');
+  const tbody = document.getElementById('users-table-body');
+  const onlineCountEl = document.getElementById('users-online-count');
+  const totalCountEl = document.getElementById('users-total-count');
+  const badgeEl = document.getElementById('sidebar-online-users-badge');
+
+  if (totalCountEl) totalCountEl.textContent = `Total: ${users.length} Users`;
+
+  const currentEmail = currentUser ? currentUser.email.toLowerCase() : "";
+  let onlineCount = 0;
+
+  if (tbody) {
+    tbody.innerHTML = users.map(u => {
+      const isOnline = (u.email.toLowerCase() === currentEmail);
+      if (isOnline) onlineCount++;
+      return `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="py-3 px-4 font-bold text-slate-900">${u.name}</td>
+          <td class="py-3 px-4 text-slate-500 font-mono text-[11px]">${u.email}</td>
+          <td class="py-3 px-4">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.role === 'admin' || u.role === 'Admin' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-700'}">
+              ${(u.role || 'Operator').toUpperCase()}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-slate-700 font-semibold">${u.fleetName || "Hazratganj EV Superhub"}</td>
+          <td class="py-3 px-4 text-slate-500">${isOnline ? 'Just now' : '15 min ago'}</td>
+          <td class="py-3 px-4 text-right">
+            ${isOnline 
+              ? '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 flex items-center justify-end w-fit ml-auto"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1 animate-pulse"></span>Online</span>'
+              : '<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500">⚪ Offline</span>'
+            }
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  if (onlineCountEl) onlineCountEl.textContent = onlineCount;
+  if (badgeEl) badgeEl.textContent = `${onlineCount} Online`;
 }
 
-// Vehicle Modal View
+// ================= MODAL =================
 function openVehicleModal(id) {
   currentSelectedModalVehicleId = id;
   const v = stationVehicles.find(item => item.vehicleId === id);
@@ -1487,7 +1388,7 @@ function openVehicleModal(id) {
   document.getElementById('modal-eta').textContent = v.eta;
   document.getElementById('modal-deadline').textContent = v.departureDeadline;
   document.getElementById('modal-energy-delivered').textContent = `${v.energyDeliveredKWh || 12.4} kWh`;
-  document.getElementById('modal-charging-saving').textContent = `+₹${costData.estimatedSaving}`;
+  document.getElementById('modal-charging-saving').textContent = costData.isComplete ? "Full Battery" : `+₹${costData.estimatedSaving}`;
 
   document.getElementById('vehicle-details-modal').classList.remove('hidden');
   lucide.createIcons();
@@ -1512,7 +1413,7 @@ function updateVehicleModalDynamic(id) {
   if (power) power.textContent = `${v.currentChargingPowerKW} kW`;
   if (eta) eta.textContent = v.eta;
   if (energy) energy.textContent = `${v.energyDeliveredKWh || 12.4} kWh`;
-  if (saving) saving.textContent = `+₹${costData.estimatedSaving}`;
+  if (saving) saving.textContent = costData.isComplete ? "Full Battery" : `+₹${costData.estimatedSaving}`;
 }
 
 function closeVehicleModal() {
@@ -1531,6 +1432,152 @@ function filterVehicles() {
   });
 
   renderVehiclesTable(filtered);
+}
+
+// ================= AUTH SESSION =================
+function initUsersDatabase() {
+  if (!localStorage.getItem('vf_users_db')) {
+    const initialUsers = [
+      {
+        name: "Mayank Tiwari",
+        email: DEMO_ACCOUNT_EMAIL,
+        password: "adminpassword123",
+        role: "Admin",
+        fleetName: "Lucknow Central Cluster"
+      },
+      {
+        name: "Rahul Verma",
+        email: "rahul.operator@voltflow.io",
+        password: "password123",
+        role: "Operator",
+        fleetName: "Hazratganj EV Superhub"
+      },
+      {
+        name: "Amit Sharma",
+        email: "amit.manager@voltflow.io",
+        password: "password123",
+        role: "Fleet Manager",
+        fleetName: "Gomti Nagar Cyber Tower"
+      }
+    ];
+    localStorage.setItem('vf_users_db', JSON.stringify(initialUsers));
+  }
+}
+
+function checkAuthSession() {
+  const session = localStorage.getItem('voltflow_session_user');
+  const authModal = document.getElementById('auth-modal-container');
+
+  if (session) {
+    currentUser = JSON.parse(session);
+    authModal.classList.add('hidden');
+    loadSharedStationFleet();
+    updateUserInterfaceHeaders();
+    renderAllViews();
+    initMap();
+    initAllCharts();
+  } else {
+    currentUser = null;
+    authModal.classList.remove('hidden');
+  }
+}
+
+function toggleAuthView(view) {
+  if (view === 'signup') {
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('signup-view').classList.remove('hidden');
+  } else {
+    document.getElementById('signup-view').classList.add('hidden');
+    document.getElementById('login-view').classList.remove('hidden');
+  }
+  lucide.createIcons();
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const password = document.getElementById('login-password').value;
+
+  const users = JSON.parse(localStorage.getItem('vf_users_db') || '[]');
+  const matchedUser = users.find(u => u.email.toLowerCase() === email && u.password === password);
+
+  if (matchedUser) {
+    currentUser = matchedUser;
+    localStorage.setItem('voltflow_session_user', JSON.stringify(matchedUser));
+    document.getElementById('auth-modal-container').classList.add('hidden');
+    loadSharedStationFleet();
+    updateUserInterfaceHeaders();
+    renderAllViews();
+    initMap();
+    initAllCharts();
+  } else {
+    alert('Invalid credentials. Check email & password or create an account.');
+  }
+}
+
+function handleSignup(e) {
+  e.preventDefault();
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim().toLowerCase();
+  const role = document.getElementById('signup-role').value;
+  const password = document.getElementById('signup-password').value;
+  const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+  if (password !== confirmPassword) {
+    alert('Passwords do not match. Please re-enter.');
+    return;
+  }
+
+  const users = JSON.parse(localStorage.getItem('vf_users_db') || '[]');
+  if (users.some(u => u.email.toLowerCase() === email)) {
+    alert('An account with this email already exists. Please login.');
+    return;
+  }
+
+  const newUser = {
+    name: name,
+    email: email,
+    password: password,
+    role: role,
+    fleetName: "Lucknow Station Node"
+  };
+
+  users.push(newUser);
+  localStorage.setItem('vf_users_db', JSON.stringify(users));
+
+  currentUser = newUser;
+  localStorage.setItem('voltflow_session_user', JSON.stringify(newUser));
+  document.getElementById('auth-modal-container').classList.add('hidden');
+  
+  loadSharedStationFleet();
+  updateUserInterfaceHeaders();
+  renderAllViews();
+  initMap();
+  initAllCharts();
+}
+
+function handleLogout() {
+  localStorage.removeItem('voltflow_session_user');
+  currentUser = null;
+  document.getElementById('login-form').reset();
+  document.getElementById('signup-form').reset();
+  toggleAuthView('login');
+  document.getElementById('auth-modal-container').classList.remove('hidden');
+  renderUsersTable();
+}
+
+function updateUserInterfaceHeaders() {
+  if (!currentUser) return;
+  const userNameEl = document.getElementById('sidebar-user-name');
+  const userEmailEl = document.getElementById('sidebar-user-email');
+  const userInitialsEl = document.getElementById('sidebar-avatar-initials');
+
+  if (userNameEl) userNameEl.textContent = currentUser.name;
+  if (userEmailEl) userEmailEl.textContent = currentUser.email;
+  if (userInitialsEl) {
+    const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    userInitialsEl.textContent = initials.substring(0, 2) || 'VF';
+  }
 }
 
 // Navigation & Sidebar
@@ -1580,7 +1627,7 @@ function closeSidebar() {
   document.getElementById('mobile-backdrop').classList.add('hidden');
 }
 
-// Map
+// Leaflet Map
 function initMap() {
   const mapElement = document.getElementById('fleet-map');
   if (!mapElement || fleetMap) return;
@@ -1616,11 +1663,11 @@ function updateMapMarkers() {
   stationVehicles.forEach(v => {
     L.circleMarker([v.lat, v.lng], {
       radius: 6,
-      fillColor: v.priority === 'Critical' ? '#ef4444' : '#10b981',
+      fillColor: v.priority === 'Critical' ? '#ef4444' : (v.priority === 'High' ? '#f59e0b' : '#10b981'),
       color: '#ffffff',
       weight: 2,
       fillOpacity: 0.9
-    }).addTo(fleetMap).bindPopup(`<b>${v.vehicleId} (${v.licensePlate})</b><br>SOC: ${v.currentSOC}%<br>Status: ${v.status}`);
+    }).addTo(fleetMap).bindPopup(`<b>${v.vehicleId} (${v.licensePlate})</b><br>SOC: ${v.currentSOC}%<br>Status: ${v.status}<br>Priority: ${v.priority}`);
   });
 }
 
