@@ -6,7 +6,7 @@ const ChargingStation = require('./models/ChargingStation');
 const ChargingSchedule = require('./models/ChargingSchedule');
 const Alert = require('./models/Alert');
 const EnergyRecord = require('./models/EnergyRecord');
-
+const MONGODB_URI = "mongodb://eduxitservices_db_user:wWqJCAQ2BShNHkbn@ac-ghsmdpg-shard-00-00.b9lsm8r.mongodb.net:27017,ac-ghsmdpg-shard-00-01.b9lsm8r.mongodb.net:27017,ac-ghsmdpg-shard-00-02.b9lsm8r.mongodb.net:27017/voltflow?ssl=true&replicaSet=atlas-13c5h8-shard-0&authSource=admin&retryWrites=true&w=majority";
 const MONGODB_URI = process.env.MONGODB_URI;
 
 const seedDatabase = async () => {
