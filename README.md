@@ -18,14 +18,14 @@
   <img src="https://img.shields.io/badge/Express.js-4.x-000000?style=flat-square&logo=express&logoColor=white" />
   <img src="https://img.shields.io/badge/MongoDB-Mongoose-47A248?style=flat-square&logo=mongodb&logoColor=white" />
   <img src="https://img.shields.io/badge/Socket.IO-Realtime-010101?style=flat-square&logo=socket.io&logoColor=white" />
-  <img src="https://img.shields.io/badge/React-Frontend-61DAFB?style=flat-square&logo=react&logoColor=black" />
+  <img src="https://img.shields.io/badge/HTML-Frontend-61DAFB?style=flat-square&logo=react&logoColor=black" />
 </p>
 
 <br>
 
 ### 🏆 Smart India Hackathon — Prototype
 
-**Built by [Nexus Knights](#team) for SIH purpose**
+**Built by [Nexus Knight](#team) for SIH purpose**
 
 </div>
 
