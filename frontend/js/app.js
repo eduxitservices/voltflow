@@ -1,6 +1,6 @@
-// VoltFlow Core Engine Controller — Autonomous Smart Priority & Real-Time Cost Engine[cite: 4]
+// VoltFlow Core Engine Controller — Separate Live Active State vs Persistent Historical Savings Engine
 
-const DEMO_ACCOUNT_EMAIL = "admin@voltflow.io"; //[cite: 4]
+const DEMO_ACCOUNT_EMAIL = "admin@voltflow.io";
 
 const BASE_STATIONS_CATALOG = [
   {
@@ -93,9 +93,9 @@ const BASE_STATIONS_CATALOG = [
     activeSessions: "3 / 8",
     utilizationPct: 40
   }
-]; //[cite: 4]
+];
 
-// Point 1: Realistic Initial Fleet Distribution (1 Critical, 2 High, 3 Medium, 2 Low)[cite: 4]
+// Initial Preset Fleet
 const DEMO_PRESET_VEHICLES = [
   {
     vehicleId: "EV-002",
@@ -265,7 +265,7 @@ const DEMO_PRESET_VEHICLES = [
     lat: 26.7922,
     lng: 80.9989
   }
-]; //[cite: 4]
+];
 
 const DEMO_PRESET_ALERTS = [
   {
@@ -282,26 +282,50 @@ const DEMO_PRESET_ALERTS = [
     id: "ALT-02",
     severity: "warning",
     title: "Grid Safe Load Governor Active",
-    message: "Total substation demand managed at 140 kW, maintaining 10 kW safe headroom below 150 kW cap.",
+    message: "Total substation demand managed safely below 150 kW cap.",
     actionTitle: "Queue Modulated",
     power: "Safe",
     target: "100%",
     rate: "₹10/kWh"
   }
-]; //[cite: 4]
+];
 
-// Global Runtime State[cite: 4]
-let currentUser = null; //[cite: 4]
-let stationVehicles = []; //[cite: 4]
-let fleetStations = JSON.parse(JSON.stringify(BASE_STATIONS_CATALOG)); //[cite: 4]
+// Active State
+let currentUser = null;
+let stationVehicles = [];
+let fleetStations = JSON.parse(JSON.stringify(BASE_STATIONS_CATALOG));
 
-let fleetMap = null; //[cite: 4]
-let vehicleToDeleteId = null; //[cite: 4]
-let currentSelectedModalVehicleId = null; //[cite: 4]
-let dashboardLiveChartInstance = null; //[cite: 4]
-let dashboardEnergyChartInstance = null; //[cite: 4]
-let analyticsComparisonChartInstance = null; //[cite: 4]
-let savingsTimelineChartInstance = null; //[cite: 4]
+let fleetMap = null;
+let vehicleToDeleteId = null;
+let currentSelectedModalVehicleId = null;
+let dashboardLiveChartInstance = null;
+let dashboardEnergyChartInstance = null;
+let analyticsComparisonChartInstance = null;
+let savingsTimelineChartInstance = null;
+
+// ================= POINT 3, 4, 7, 8: SEPARATE PERSISTENT HISTORICAL SAVINGS ENGINE =================
+function getHistoricalSavingsData() {
+  const raw = localStorage.getItem('vf_persistent_historical_savings');
+  if (raw) {
+    return JSON.parse(raw);
+  }
+  // Default persistent baseline savings records (seeded with initial ₹1,240 base)
+  const initialData = {
+    totalCumulativeSavings: 1240,
+    totalEnergyShiftedKWh: 1240,
+    totalCompletedSessions: 480
+  };
+  localStorage.setItem('vf_persistent_historical_savings', JSON.stringify(initialData));
+  return initialData;
+}
+
+function recordHistoricalSavings(addedSavingAmount, addedKWh) {
+  const data = getHistoricalSavingsData();
+  data.totalCumulativeSavings += (addedSavingAmount || 0);
+  data.totalEnergyShiftedKWh += (addedKWh || 0);
+  data.totalCompletedSessions += 1;
+  localStorage.setItem('vf_persistent_historical_savings', JSON.stringify(data));
+}
 
 // ================= POINT 1: DUAL-FACTOR AUTOMATIC PRIORITY ENGINE =================
 function parseDeadlineToMinutes(deadlineStr) {
@@ -317,7 +341,7 @@ function parseDeadlineToMinutes(deadlineStr) {
     return match ? Math.round(parseFloat(match[0]) * 60) : 60;
   }
   if (lower.includes(':')) {
-    return 45; // Imminent scheduled departure
+    return 45;
   }
   return 180;
 }
@@ -327,31 +351,27 @@ function calculateAutoPriority(vehicle) {
   const target = parseInt(vehicle.targetSOC) || 90;
   const minutes = parseDeadlineToMinutes(vehicle.departureDeadline);
 
-  // If already full or no energy required
   if (soc >= target) {
     return 'Low';
   }
 
-  // 1. 🔴 CRITICAL RULE: SOC <= 20% AND Departure <= 45 minutes
+  // 1. CRITICAL: SOC <= 20% AND Departure <= 45 mins
   if (soc <= 20 && minutes <= 45) {
     return 'Critical';
   }
-
-  // 2. 🟠 HIGH RULE: SOC 20-40% AND Departure <= 120 minutes (2 hrs) OR Critical SOC with departure in <= 90 mins
+  // 2. HIGH: SOC 20-40% AND Departure <= 120 mins
   if ((soc <= 40 && minutes <= 120) || (soc <= 20 && minutes <= 90)) {
     return 'High';
   }
-
-  // 3. 🟡 MEDIUM RULE: SOC 40-65% AND Departure <= 240 minutes (4 hrs) OR High SOC with tight departure
+  // 3. MEDIUM: SOC 40-65% AND Departure <= 240 mins
   if ((soc <= 65 && minutes <= 240) || (soc <= 40 && minutes > 120)) {
     return 'Medium';
   }
-
-  // 4. 🟢 LOW RULE: SOC > 65% OR Departure > 4 hours away
+  // 4. LOW: SOC > 65% OR Departure > 4 hrs
   return 'Low';
 }
 
-// ================= POINT 5 & 6: EXACT FORMULA-DRIVEN COST & SAVINGS =================
+// ================= POINT 5 & 6: REAL-TIME COST & SAVINGS =================
 function calculateChargingCost(vehicle) {
   const soc = parseInt(vehicle.currentSOC) || 0;
   const target = parseInt(vehicle.targetSOC) || 90;
@@ -372,8 +392,8 @@ function calculateChargingCost(vehicle) {
   }
 
   const station = fleetStations.find(s => s.id === vehicle.stationId) || fleetStations[0];
-  const optimizedPrice = station ? (station.currentPrice || 10) : 10; // ₹9 to ₹13
-  const baselinePrice = 14; // Baseline unmanaged peak price (₹14/kWh)
+  const optimizedPrice = station ? (station.currentPrice || 10) : 10;
+  const baselinePrice = 14;
 
   const estimatedCost = Math.round(energyRequired * optimizedPrice);
   const baselineCost = Math.round(energyRequired * baselinePrice);
@@ -389,23 +409,22 @@ function calculateChargingCost(vehicle) {
   };
 }
 
-// ================= POINT 2, 3, 4: AUTOMATIC QUEUE SORTING & CHARGER ALLOCATION =================
+// ================= POINT 1, 2, 4: AUTONOMOUS QUEUE SORTING & STALE CHARGING GUARD =================
 function updateChargingQueueAndChargers() {
   const container = document.getElementById('dynamic-charging-queue-container');
   const countBadge = document.getElementById('queue-count-badge');
 
-  if (stationVehicles.length === 0) {
+  // Point 1: If 0 registered vehicles, reset everything cleanly to 0
+  if (!stationVehicles || stationVehicles.length === 0) {
     if (container) container.innerHTML = `<div class="col-span-full py-4 text-center text-slate-400 text-xs font-medium">No vehicles registered in station.</div>`;
     if (countBadge) countBadge.textContent = "0 In Queue";
     return;
   }
 
-  // Recalculate priority automatically
   stationVehicles.forEach(v => {
     v.priority = calculateAutoPriority(v);
   });
 
-  // Sort: Critical (1) > High (2) > Medium (3) > Low (4) -> Earlier Departure -> Lower SOC
   const priorityWeight = { 'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4 };
   
   stationVehicles.sort((a, b) => {
@@ -420,7 +439,6 @@ function updateChargingQueueAndChargers() {
     return a.currentSOC - b.currentSOC;
   });
 
-  // Autonomous Charger Slot Assignment (Max 3 simultaneous fast chargers under 150 kW cap)
   let activeChargingGuns = 0;
   const maxSimultaneousGuns = 3;
   let queuePositionCounter = 1;
@@ -434,7 +452,6 @@ function updateChargingQueueAndChargers() {
       v.assignedCharger = "Completed Bay";
       v.eta = "Completed ✅";
     } else if (v.status !== 'in-transit' && activeChargingGuns < maxSimultaneousGuns) {
-      // Highest priority vehicles automatically get chargers
       v.status = 'charging';
       activeChargingGuns++;
       if (v.priority === 'Critical') {
@@ -462,6 +479,11 @@ function updateChargingQueueAndChargers() {
   if (container) {
     const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣'];
     const activeAndQueued = stationVehicles.filter(v => v.status === 'charging' || v.status === 'queued');
+
+    if (activeAndQueued.length === 0) {
+      container.innerHTML = `<div class="col-span-full py-4 text-center text-slate-400 text-xs font-medium">All vehicles charged. No queue active.</div>`;
+      return;
+    }
 
     container.innerHTML = activeAndQueued.slice(0, 4).map((v, idx) => {
       const medal = medals[idx] || `${idx + 1}️⃣`;
@@ -496,27 +518,30 @@ function updateChargingQueueAndChargers() {
   }
 }
 
-// ================= POINT 3 & 4: REAL-TIME CHARGING SIMULATION LOOP =================
+// ================= POINT 3 & 4: REAL-TIME CHARGING TELEMETRY LOOP =================
 function startRealChargingSimulation() {
   setInterval(() => {
-    if (!currentUser || stationVehicles.length === 0) return;
+    if (!currentUser || !stationVehicles || stationVehicles.length === 0) return;
 
     let updated = false;
 
     stationVehicles.forEach(v => {
       if (v.status === 'charging') {
         if (v.currentSOC < v.targetSOC) {
-          v.currentSOC += 1; // Increment SOC realistically
+          v.currentSOC += 1;
           v.currentRangeKM = Math.min(Math.round(v.currentSOC * 3.3), 450);
           v.energyDeliveredKWh = +( (v.energyDeliveredKWh || 0) + 0.4 ).toFixed(1);
           v.priority = calculateAutoPriority(v);
           updated = true;
         } else {
-          // Point 4: Automatically complete and promote next in queue
+          // Vehicle Charging Complete: Record persistent historical savings!
           v.status = 'completed';
           v.currentChargingPowerKW = 0;
           v.eta = "Completed ✅";
           v.priority = "Low";
+          
+          const finalCostData = calculateChargingCost(v);
+          recordHistoricalSavings(finalCostData.estimatedSaving, parseFloat(finalCostData.energyRequired));
           updated = true;
         }
       }
@@ -534,25 +559,35 @@ function startRealChargingSimulation() {
   }, 3500);
 }
 
-// ================= POINT 7, 8, 9: REAL-TIME METRICS & TOP CARDS UPDATE =================
+// ================= POINT 1, 3, 5, 8: DASHBOARD METRICS CALCULATION =================
 function updateDashboardKPIs() {
   const total = stationVehicles.length;
-  const charging = stationVehicles.filter(v => v.status === 'charging').length;
-  const transit = stationVehicles.filter(v => v.status === 'in-transit').length;
-  const completed = stationVehicles.filter(v => v.status === 'completed').length;
+
+  // Point 1: Strict Active Live Metrics (Clean zero when no vehicles)
+  const chargingVehicles = total > 0 ? stationVehicles.filter(v => v.status === 'charging') : [];
+  const chargingCount = chargingVehicles.length;
+  const transitCount = total > 0 ? stationVehicles.filter(v => v.status === 'in-transit').length : 0;
+  const completedCount = total > 0 ? stationVehicles.filter(v => v.status === 'completed').length : 0;
+  const queuedCount = total > 0 ? stationVehicles.filter(v => v.status === 'queued').length : 0;
 
   const totalSOC = total > 0 ? stationVehicles.reduce((acc, v) => acc + v.currentSOC, 0) : 0;
   const avgSOC = total > 0 ? (totalSOC / total).toFixed(1) : "0.0";
 
-  const currentTotalLoadKW = stationVehicles.reduce((acc, v) => acc + (v.currentChargingPowerKW || 0), 0);
+  const currentTotalLoadKW = total > 0 
+    ? stationVehicles.reduce((acc, v) => acc + (v.currentChargingPowerKW || 0), 0) 
+    : 0;
+    
   const headroomKW = Math.max(0, 150 - currentTotalLoadKW);
 
-  // Point 7 & 8: Real-time Calculated Fleet Savings
-  const totalCalculatedSavings = stationVehicles.reduce((acc, v) => {
-    const costData = calculateChargingCost(v);
-    return acc + costData.estimatedSaving;
-  }, 0);
+  // Point 3, 5, 8: Persistent Historical Savings calculation (Never drops to 0 on vehicle delete!)
+  const historicalData = getHistoricalSavingsData();
+  const currentLiveSaving = total > 0 
+    ? stationVehicles.reduce((acc, v) => acc + calculateChargingCost(v).estimatedSaving, 0) 
+    : 0;
+    
+  const totalCombinedSavings = historicalData.totalCumulativeSavings + currentLiveSaving;
 
+  // DOM Updates
   const headerLoad = document.getElementById('header-grid-load');
   if (headerLoad) headerLoad.textContent = currentTotalLoadKW;
 
@@ -563,7 +598,7 @@ function updateDashboardKPIs() {
   if (dashHeadroom) dashHeadroom.textContent = `${headroomKW} kW`;
 
   const dashSubHeadroom = document.getElementById('dash-sub-headroom');
-  if (dashSubHeadroom) dashSubHeadroom.textContent = `${headroomKW} kW`;
+  if (dashSubHeadroom) dashSubHeadroom.textContent = `${headroomKW} kW (Safe)`;
 
   const dashOptCount = document.getElementById('dash-optimized-count');
   if (dashOptCount) dashOptCount.textContent = `${total} / ${total}`;
@@ -571,21 +606,37 @@ function updateDashboardKPIs() {
   const fleetCountEl = document.getElementById('dash-kpi-fleet-count');
   if (fleetCountEl) fleetCountEl.textContent = `${total} EVs`;
 
+  const chargingNowEl = document.getElementById('dash-kpi-charging-now');
+  if (chargingNowEl) {
+    chargingNowEl.textContent = `${chargingCount} Active`;
+  }
+
   const statusSub = document.getElementById('dash-kpi-status-sub');
-  if (statusSub) statusSub.textContent = `${charging} Charging • ${completed} Done • ${transit} Transit`;
+  if (statusSub) {
+    if (total === 0) {
+      statusSub.textContent = `0 Charging • 0 Queued • 0 Transit`;
+    } else {
+      statusSub.textContent = `${chargingCount} Charging • ${queuedCount} Queued • ${transitCount} Transit`;
+    }
+  }
+
+  const throttledSub = document.getElementById('dash-kpi-throttled-sub');
+  if (throttledSub) {
+    throttledSub.textContent = total > 0 ? `${currentTotalLoadKW} kW safe load` : `0 kW safe load`;
+  }
 
   const avgSocEl = document.getElementById('dash-kpi-avg-soc');
   if (avgSocEl) avgSocEl.textContent = `${avgSOC}%`;
 
-  // Point 8: Top Savings Card Update with Real Calculated Value
+  // Point 8: Persistent Savings on Top Dashboard Card
   const savingsEl = document.getElementById('dash-kpi-savings');
   if (savingsEl) {
-    savingsEl.textContent = totalCalculatedSavings > 0 ? `₹${totalCalculatedSavings.toLocaleString()}` : '₹0';
+    savingsEl.textContent = `₹${totalCombinedSavings.toLocaleString()}`;
   }
 
   const impactSavingsEl = document.getElementById('impact-card-savings');
   if (impactSavingsEl) {
-    impactSavingsEl.textContent = totalCalculatedSavings > 0 ? `₹${totalCalculatedSavings.toLocaleString()} Saved` : '₹0';
+    impactSavingsEl.textContent = `₹${totalCombinedSavings.toLocaleString()} Saved`;
   }
 
   const emptyState = document.getElementById('dashboard-empty-state');
@@ -604,7 +655,10 @@ function updateDashboardKPIs() {
 }
 
 function updateBeforeAfterSection(managedLoadKW) {
-  const unmanagedLoad = stationVehicles.reduce((acc, v) => acc + (v.batteryCapacityKWh >= 40 ? 60 : 40), 0);
+  const unmanagedLoad = stationVehicles.length > 0 
+    ? stationVehicles.reduce((acc, v) => acc + (v.batteryCapacityKWh >= 40 ? 60 : 40), 0)
+    : 0;
+
   const unmanagedLoadEl = document.getElementById('unmanaged-total-load');
   const managedLoadEl = document.getElementById('managed-total-load');
   const shavedPctEl = document.getElementById('managed-shaved-pct');
@@ -635,7 +689,7 @@ function updateBeforeAfterSection(managedLoadKW) {
     } else {
       unmanagedList.innerHTML = stationVehicles.slice(0, 3).map(v => `
         <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-rose-100 font-medium">
-          <span>${v.vehicleId} (${v.assignedStation})</span>
+          <span>${v.vehicleId} (${v.assignedStation ? v.assignedStation.split(' ')[0] : 'Depot'})</span>
           <span class="font-bold text-rose-700">${v.batteryCapacityKWh >= 40 ? 60 : 40} kW (Unmanaged)</span>
         </div>
       `).join('');
@@ -649,7 +703,7 @@ function updateBeforeAfterSection(managedLoadKW) {
       managedList.innerHTML = stationVehicles.slice(0, 3).map(v => `
         <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-emerald-100 font-medium">
           <span>${v.vehicleId} • Dep: ${v.departureDeadline}</span>
-          <span class="font-bold text-blue-600">${v.currentChargingPowerKW} kW (${v.assignedCharger.split(' ')[0]})</span>
+          <span class="font-bold text-blue-600">${v.currentChargingPowerKW} kW (${v.assignedCharger ? v.assignedCharger.split(' ')[0] : 'Gun'})</span>
         </div>
       `).join('');
     }
@@ -662,7 +716,7 @@ function renderOrchestrationTable() {
   if (!tbody) return;
 
   if (stationVehicles.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-400">No vehicles available. Add vehicles to see optimized dispatch.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-400 font-medium">No vehicles registered. Click "+ Add Vehicle" or "Upload CSV" to begin.</td></tr>`;
     return;
   }
 
@@ -699,7 +753,7 @@ function renderOrchestrationTable() {
   }).join('');
 }
 
-// ================= POINT 8, 9, 10: SAVINGS FILTER & TIMELINE GRAPH =================
+// ================= POINT 6, 8, 9, 10: SAVINGS FILTER & TIMELINE GRAPH =================
 let currentSavingsFilter = "30days";
 
 function handleSavingsDateFilterChange() {
@@ -720,7 +774,9 @@ function applyCustomDateSavings() {
 }
 
 function updateSavingsAnalyticsView() {
-  const currentFleetSavings = stationVehicles.reduce((acc, v) => acc + calculateChargingCost(v).estimatedSaving, 0);
+  const historicalData = getHistoricalSavingsData();
+  const currentFleetSaving = stationVehicles.reduce((acc, v) => acc + calculateChargingCost(v).estimatedSaving, 0);
+  const baseTotalSavings = historicalData.totalCumulativeSavings + currentFleetSaving;
   
   let multiplier = 1;
   let periodDays = 30;
@@ -734,49 +790,49 @@ function updateSavingsAnalyticsView() {
       periodDays = 1;
       title = "Charging Cost Savings — Today (18 Aug 2026)";
       chartLabels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
-      chartData = [120, 180, 240, 160, 310, 280].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 200) : 1)));
+      chartData = [120, 180, 240, 160, 310, 280].map(v => Math.round(v * (baseTotalSavings / 1200)));
       break;
     case 'yesterday':
       multiplier = 0.95;
       periodDays = 1;
       title = "Charging Cost Savings — Yesterday";
       chartLabels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
-      chartData = [110, 170, 220, 150, 290, 260].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 200) : 1)));
+      chartData = [110, 170, 220, 150, 290, 260].map(v => Math.round(v * (baseTotalSavings / 1200)));
       break;
     case '7days':
       multiplier = 7;
       periodDays = 7;
       title = "Charging Cost Savings — Last 7 Days";
       chartLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      chartData = [450, 520, 610, 480, 720, 680, 590].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 150) : 1)));
+      chartData = [450, 520, 610, 480, 720, 680, 590].map(v => Math.round(v * (baseTotalSavings / 1000)));
       break;
     case '30days':
       multiplier = 30;
       periodDays = 30;
       title = "Charging Cost Savings — Last 30 Days";
       chartLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-      chartData = [3400, 4200, 4800, 5250].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 100) : 1)));
+      chartData = [3400, 4200, 4800, 5250].map(v => Math.round(v * (baseTotalSavings / 800)));
       break;
     case '3months':
       multiplier = 90;
       periodDays = 90;
       title = "Charging Cost Savings — Last 3 Months";
       chartLabels = ['June 2026', 'July 2026', 'August 2026'];
-      chartData = [14200, 16800, 18450].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 80) : 1)));
+      chartData = [14200, 16800, 18450].map(v => Math.round(v * (baseTotalSavings / 600)));
       break;
     case '6months':
       multiplier = 180;
       periodDays = 180;
       title = "Charging Cost Savings — Last 6 Months";
       chartLabels = ['Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'];
-      chartData = [11200, 13400, 15100, 16800, 17900, 18450].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 80) : 1)));
+      chartData = [11200, 13400, 15100, 16800, 17900, 18450].map(v => Math.round(v * (baseTotalSavings / 600)));
       break;
     case '1year':
       multiplier = 365;
       periodDays = 365;
       title = "Charging Cost Savings — Last 1 Year";
       chartLabels = ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025', 'Q1 2026', 'Q2 2026'];
-      chartData = [28000, 34000, 42000, 48000, 54000, 62000].map(v => Math.round(v * (currentFleetSavings > 0 ? (currentFleetSavings / 60) : 1)));
+      chartData = [28000, 34000, 42000, 48000, 54000, 62000].map(v => Math.round(v * (baseTotalSavings / 500)));
       break;
     default:
       multiplier = 15;
@@ -786,13 +842,10 @@ function updateSavingsAnalyticsView() {
       chartData = [2100, 2800, 3400, 3900];
   }
 
-  const calculatedTotalSavings = stationVehicles.length > 0 
-    ? Math.round(currentFleetSavings * (multiplier / 2) + 1240) 
-    : 0;
-  
+  const calculatedTotalSavings = Math.max(1240, Math.round(baseTotalSavings * (multiplier / 2)));
   const calculatedEnergyCostSaved = Math.round(calculatedTotalSavings * 0.85);
   const avgDaily = periodDays > 0 ? Math.round(calculatedTotalSavings / periodDays) : 0;
-  const sessionsCount = stationVehicles.length * periodDays * 2;
+  const sessionsCount = Math.max(480, historicalData.totalCompletedSessions + (stationVehicles.length * periodDays));
 
   const totalSavEl = document.getElementById('analytics-total-savings');
   const costSavedEl = document.getElementById('analytics-cost-saved');
@@ -803,7 +856,7 @@ function updateSavingsAnalyticsView() {
   if (totalSavEl) totalSavEl.textContent = `₹${calculatedTotalSavings.toLocaleString()}`;
   if (costSavedEl) costSavedEl.textContent = `₹${calculatedEnergyCostSaved.toLocaleString()}`;
   if (avgDailyEl) avgDailyEl.textContent = `₹${avgDaily.toLocaleString()}/day`;
-  if (sessionsEl) sessionsEl.textContent = sessionsCount > 0 ? sessionsCount.toLocaleString() : "0";
+  if (sessionsEl) sessionsEl.textContent = sessionsCount.toLocaleString();
   if (graphTitleEl) graphTitleEl.textContent = title;
 
   renderSavingsTimelineChart(chartLabels, chartData);
@@ -844,7 +897,7 @@ function renderSavingsTimelineChart(labels, data) {
   });
 }
 
-// ================= CLOCK & AUTH =================
+// ================= POINT 1, 2, 10: SYNCHRONIZATION & STORAGE =================
 function startGlobalClock() {
   function updateClock() {
     const now = new Date();
@@ -866,7 +919,7 @@ function startGlobalClock() {
 
 function initCrossUserSync() {
   window.addEventListener('storage', (e) => {
-    if (e.key === 'vf_shared_station_fleet_data' || e.key === 'vf_users_db') {
+    if (e.key === 'vf_shared_station_fleet_data' || e.key === 'vf_users_db' || e.key === 'vf_persistent_historical_savings') {
       loadSharedStationFleet();
       renderAllViews();
       if (fleetMap) updateMapMarkers();
@@ -880,7 +933,7 @@ function initCrossUserSync() {
 
 function loadSharedStationFleet() {
   const raw = localStorage.getItem('vf_shared_station_fleet_data');
-  if (raw) {
+  if (raw !== null) {
     stationVehicles = JSON.parse(raw);
   } else {
     stationVehicles = JSON.parse(JSON.stringify(DEMO_PRESET_VEHICLES));
@@ -1057,7 +1110,7 @@ function runPipeline(steps, onComplete) {
   }, 450);
 }
 
-// ================= CRUD =================
+// ================= POINT 1 & 2: VEHICLE ADD & DELETE HANDLERS =================
 function openAddVehicleModal() {
   document.getElementById('add-vehicle-modal').classList.remove('hidden');
 }
@@ -1135,7 +1188,11 @@ function closeDeleteModal() {
 
 function confirmDeleteVehicle() {
   if (!vehicleToDeleteId) return;
+
+  // Point 2: Remove vehicle from fleet state completely
   stationVehicles = stationVehicles.filter(v => v.vehicleId !== vehicleToDeleteId);
+  
+  // Clean up all active charging and power allocations
   updateChargingQueueAndChargers();
   saveSharedStationFleet();
   closeDeleteModal();
@@ -1177,7 +1234,7 @@ function renderVehiclesTable(vehicles) {
   if (!tbody) return;
 
   if (vehicles.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Your fleet is empty. Click "+ Add Vehicle" or "Upload CSV" to begin.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400 font-medium">Your fleet is empty. Click "+ Add Vehicle" or "Upload CSV" to begin.</td></tr>`;
     return;
   }
 
@@ -1213,7 +1270,7 @@ function renderSchedulesTable() {
   if (!tbody) return;
 
   if (stationVehicles.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="11" class="py-8 text-center text-slate-400">No charging schedules generated. Add fleet vehicles to view.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="11" class="py-8 text-center text-slate-400 font-medium">No charging schedules generated. Add fleet vehicles to view.</td></tr>`;
     return;
   }
 
