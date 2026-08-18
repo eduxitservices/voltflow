@@ -50,34 +50,76 @@
 </head>
 <body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
 
-  <!-- ================= AUTHENTICATION OVERLAY (POINT 5) ================= -->
-  <div id="auth-modal-container" class="fixed inset-0 bg-slate-950 z-[100] flex items-center justify-center p-4">
-    <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl border border-slate-100 relative">
+  <!-- ================= AUTHENTICATION MODAL (LOGIN & SIGNUP - NO PUBLIC CREDENTIALS) ================= -->
+  <div id="auth-modal-container" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 relative animate-in fade-in zoom-in duration-200">
+      
       <div class="text-center mb-6">
         <div class="w-12 h-12 rounded-2xl bg-blue-600 flex items-center justify-center text-white mx-auto shadow-lg shadow-blue-500/30 mb-3">
           <i data-lucide="zap" class="w-6 h-6"></i>
         </div>
         <h2 class="text-2xl font-black text-slate-900">Volt<span class="text-blue-600">Flow</span></h2>
-        <p class="text-xs text-slate-500 mt-1">Lucknow Smart EV Fleet Operations & Telemetry OS</p>
+        <p class="text-xs text-slate-500 mt-1">Smart EV Fleet Orchestration & Telemetry OS</p>
       </div>
 
-      <form id="login-form" onsubmit="handleLogin(event)" class="space-y-4 text-xs">
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Fleet Admin Email</label>
-          <input type="email" id="login-email" value="admin@voltflow.io" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800">
+      <!-- LOGIN FORM -->
+      <div id="login-view">
+        <h3 class="text-sm font-bold text-slate-900 mb-3">Sign in to your Fleet Workspace</h3>
+        <form id="login-form" onsubmit="handleLogin(event)" class="space-y-3.5 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Email Address</label>
+            <input type="email" id="login-email" required placeholder="name@company.com" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Password</label>
+            <input type="password" id="login-password" required placeholder="••••••••" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800">
+          </div>
+          
+          <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-600/30 transition-all text-xs touch-btn">
+            Sign In
+          </button>
+        </form>
+
+        <div class="mt-5 text-center text-xs text-slate-500 border-t border-slate-100 pt-4">
+          Don't have an account? 
+          <button onclick="toggleAuthView('signup')" class="text-blue-600 font-bold hover:underline">Create Account</button>
         </div>
-        <div>
-          <label class="block font-bold text-slate-700 mb-1">Access Password</label>
-          <input type="password" id="login-password" value="adminpassword123" required class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800">
+      </div>
+
+      <!-- SIGNUP FORM -->
+      <div id="signup-view" class="hidden">
+        <h3 class="text-sm font-bold text-slate-900 mb-3">Create New Fleet Workspace</h3>
+        <form id="signup-form" onsubmit="handleSignup(event)" class="space-y-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Full Name</label>
+            <input type="text" id="signup-name" required placeholder="Mayank Tiwari" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Work Email</label>
+            <input type="email" id="signup-email" required placeholder="admin@myfleet.com" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Password</label>
+              <input type="password" id="signup-password" minlength="6" required placeholder="••••••••" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Confirm Password</label>
+              <input type="password" id="signup-confirm-password" minlength="6" required placeholder="••••••••" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800">
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-600/30 transition-all text-xs touch-btn mt-2">
+            Create Account
+          </button>
+        </form>
+
+        <div class="mt-5 text-center text-xs text-slate-500 border-t border-slate-100 pt-4">
+          Already have an account? 
+          <button onclick="toggleAuthView('login')" class="text-blue-600 font-bold hover:underline">Sign In</button>
         </div>
-        <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1">
-          <span class="flex items-center"><input type="checkbox" checked class="mr-1.5 rounded text-blue-600"> Remember node</span>
-          <span class="text-blue-600 font-semibold">Demo credentials loaded</span>
-        </div>
-        <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-md shadow-blue-600/30 transition-all text-xs touch-btn">
-          Sign In to Fleet Node
-        </button>
-      </form>
+      </div>
+
     </div>
   </div>
 
@@ -86,12 +128,12 @@
     <div class="flex items-center space-x-2 w-full md:w-auto justify-between md:justify-start">
       <span class="inline-flex items-center text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
-        Live Simulation Active (3s Cadence)
+        Telemetry Node Active
       </span>
-      <span class="text-[11px] text-slate-300">Standard Date: <strong class="text-white">18 August 2026</strong> | Lucknow Node</span>
+      <span class="text-[11px] text-slate-300">Standard Date: <strong class="text-white">18 August 2026</strong> | Fleet Isolation Mode</span>
     </div>
     <p class="text-[10px] text-slate-400 text-center md:text-right">
-      VoltFlow consumes EV telemetry & OCPP charging data. This prototype runs live simulated telemetry.
+      VoltFlow consumes EV telemetry & OCPP charging data. Isolated workspace active.
     </p>
   </div>
 
@@ -157,7 +199,7 @@
             <i data-lucide="bell" class="w-4 h-4"></i>
             <span>Fleet Alerts</span>
           </div>
-          <span class="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full" id="sidebar-alert-badge">2</span>
+          <span class="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full" id="sidebar-alert-badge">0</span>
         </button>
 
         <button onclick="switchTab('reports')" id="nav-reports" class="nav-item touch-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
@@ -176,15 +218,15 @@
         </button>
       </nav>
 
-      <!-- User Profile & Logout (Point 5) -->
+      <!-- User Profile & Logout -->
       <div class="p-4 border-t border-slate-200 bg-slate-50/50 flex items-center justify-between">
         <div class="flex items-center space-x-2.5 truncate">
-          <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs flex-shrink-0">
-            LK
+          <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs flex-shrink-0" id="sidebar-avatar-initials">
+            VF
           </div>
           <div class="truncate">
-            <p class="text-xs font-semibold text-slate-900 truncate">Mayank Tiwari</p>
-            <p class="text-[10px] text-slate-500 truncate">admin@voltflow.io</p>
+            <p class="text-xs font-semibold text-slate-900 truncate" id="sidebar-user-name">User Account</p>
+            <p class="text-[10px] text-slate-500 truncate" id="sidebar-user-email">user@voltflow.io</p>
           </div>
         </div>
         <button onclick="handleLogout()" title="Logout" class="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-all">
@@ -204,14 +246,14 @@
           </button>
           <div>
             <h2 id="page-title" class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Dashboard Overview</h2>
-            <p class="text-[11px] text-slate-500 hidden sm:block">Live Lucknow fleet telemetry, energy load & power orchestration</p>
+            <p class="text-[11px] text-slate-500 hidden sm:block">Fleet telemetry, load management & power governor</p>
           </div>
         </div>
 
         <div class="flex items-center space-x-2 sm:space-x-3">
           <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
-            Grid: Safe (<span id="header-grid-load">105</span> / 150 kW)
+            Grid: <span id="header-grid-status">Safe</span> (<span id="header-grid-load">0</span> / 150 kW)
           </span>
           <button onclick="switchTab('orchestration')" class="flex items-center space-x-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-sm touch-btn">
             <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
@@ -234,15 +276,15 @@
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
               <div>
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center" id="dash-badge-status">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
-                    Live Telemetry Loop Active 🟢
+                    Telemetry Connected 🟢
                   </span>
-                  <span class="text-xs text-slate-300">18 August 2026, 04:30 AM</span>
+                  <span class="text-xs text-slate-300">18 August 2026</span>
                 </div>
                 <h3 class="text-lg sm:text-xl font-bold text-white mt-2">SMART OPTIMIZATION STATUS</h3>
                 <p class="text-xs text-blue-200 mt-1 max-w-xl">
-                  VoltFlow engine is dynamically governing charging loads across Lucknow EV depots to prevent transformer overload while protecting departure deadlines.
+                  VoltFlow engine governs charging rates dynamically, enforcing transformer limits and optimizing departure urgency.
                 </p>
               </div>
 
@@ -253,15 +295,15 @@
                 </div>
                 <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
                   <p class="text-[10px] sm:text-[11px] text-blue-200">Current Load</p>
-                  <p class="text-base sm:text-lg font-black text-emerald-400" id="dash-current-load">105 kW</p>
+                  <p class="text-base sm:text-lg font-black text-emerald-400" id="dash-current-load">0 kW</p>
                 </div>
                 <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
                   <p class="text-[10px] sm:text-[11px] text-blue-200">Headroom</p>
-                  <p class="text-base sm:text-lg font-black text-cyan-300" id="dash-headroom">45 kW</p>
+                  <p class="text-base sm:text-lg font-black text-cyan-300" id="dash-headroom">150 kW</p>
                 </div>
                 <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
                   <p class="text-[10px] sm:text-[11px] text-blue-200">Active Fleet</p>
-                  <p class="text-base sm:text-lg font-black text-amber-300" id="dash-optimized-count">8 / 8</p>
+                  <p class="text-base sm:text-lg font-black text-amber-300" id="dash-optimized-count">0 / 0</p>
                 </div>
               </div>
             </div>
@@ -274,23 +316,23 @@
                 <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Total Fleet</p>
                 <i data-lucide="car" class="w-4 h-4 text-blue-600"></i>
               </div>
-              <h4 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1" id="dash-kpi-fleet-count">8 EVs</h4>
-              <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate" id="dash-kpi-status-sub">5 Charging • 1 Queued • 2 Transit</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1" id="dash-kpi-fleet-count">0 EVs</h4>
+              <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate" id="dash-kpi-status-sub">0 Charging • 0 Standby</p>
             </div>
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
               <div class="flex items-center justify-between">
                 <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Peak Shaved</p>
                 <i data-lucide="trending-down" class="w-4 h-4 text-emerald-600"></i>
               </div>
-              <h4 class="text-xl sm:text-2xl font-bold text-blue-600 mt-1">20.6% ↓</h4>
-              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">35 kW safely throttled</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-blue-600 mt-1" id="dash-kpi-peak-shaved">0.0% ↓</h4>
+              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate" id="dash-kpi-throttled-sub">0 kW throttled</p>
             </div>
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
               <div class="flex items-center justify-between">
                 <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Estimated Savings</p>
                 <i data-lucide="wallet" class="w-4 h-4 text-indigo-600"></i>
               </div>
-              <h4 class="text-xl sm:text-2xl font-bold text-emerald-600 mt-1" id="dash-kpi-savings">₹18,450</h4>
+              <h4 class="text-xl sm:text-2xl font-bold text-emerald-600 mt-1" id="dash-kpi-savings">₹0</h4>
               <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">Off-peak tariff optimization</p>
             </div>
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
@@ -298,56 +340,80 @@
                 <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Avg Fleet SOC</p>
                 <i data-lucide="battery-charging" class="w-4 h-4 text-amber-600"></i>
               </div>
-              <h4 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1" id="dash-kpi-avg-soc">54.2%</h4>
-              <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate">98.7% On-Time Dispatch</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1" id="dash-kpi-avg-soc">0.0%</h4>
+              <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate">On-Time Dispatch Metric</p>
             </div>
           </div>
 
-          <!-- FLEET MAP & CHARGING LOAD -->
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
-            <div class="lg:col-span-2 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-              <div class="flex items-center justify-between mb-3">
+          <!-- EMPTY STATE CONTAINER (SHOWN WHEN 0 VEHICLES FOR NEW USERS) -->
+          <div id="dashboard-empty-state" class="hidden bg-white rounded-3xl border border-dashed border-slate-300 p-8 sm:p-12 text-center">
+            <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4">
+              <i data-lucide="layers" class="w-7 h-7"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900">No fleet data available</h3>
+            <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 mb-6">
+              Upload your vehicle CSV or add vehicles to start real-time telemetry, smart charging optimization, and cost monitoring.
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+              <button onclick="switchTab('vehicles'); openAddVehicleModal();" class="touch-btn px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md shadow-blue-600/30 flex items-center space-x-1.5">
+                <i data-lucide="plus" class="w-4 h-4"></i>
+                <span>Add Vehicle</span>
+              </button>
+              <label class="touch-btn px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs cursor-pointer flex items-center space-x-1.5">
+                <i data-lucide="upload" class="w-4 h-4"></i>
+                <span>Upload CSV</span>
+                <input type="file" accept=".csv" onchange="handleCSVUpload(event)" class="hidden">
+              </label>
+            </div>
+          </div>
+
+          <!-- MAP & REAL-TIME LOAD (SHOWN WHEN VEHICLES EXIST) -->
+          <div id="dashboard-data-view" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div class="lg:col-span-2 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 class="font-bold text-slate-900 text-sm sm:text-base">EV Fleet Live Geospatial Map</h4>
+                    <p class="text-xs text-slate-500">Live GPS tracking & Charging Depot Telemetry (18 Aug 2026)</p>
+                  </div>
+                  <span class="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2.5 py-1 rounded-full border border-emerald-200" id="dash-active-hubs-badge">Hubs Active</span>
+                </div>
+                <div id="fleet-map"></div>
+              </div>
+
+              <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                 <div>
-                  <h4 class="font-bold text-slate-900 text-sm sm:text-base">Lucknow EV Fleet Live Geospatial Map</h4>
-                  <p class="text-xs text-slate-500">Live GPS tracking & Charging Depot Telemetry (18 Aug 2026)</p>
+                  <div class="flex items-center justify-between mb-2">
+                    <h4 class="font-bold text-slate-900 text-sm">Hub Power vs Grid Cap</h4>
+                    <span class="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Hazratganj</span>
+                  </div>
+                  <p class="text-xs text-slate-500 mb-3">Transformer safe threshold: 150 kW</p>
+                  <div class="h-56 w-full">
+                    <canvas id="dashboardLiveChart"></canvas>
+                  </div>
                 </div>
-                <span class="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2.5 py-1 rounded-full border border-emerald-200">5 Hubs Active</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span class="text-slate-500">Available Headroom</span>
+                  <span class="font-bold text-emerald-600" id="dash-sub-headroom">150 kW</span>
+                </div>
               </div>
-              <div id="fleet-map"></div>
             </div>
 
-            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-2">
-                  <h4 class="font-bold text-slate-900 text-sm">Hub Power vs Grid Cap</h4>
-                  <span class="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Hazratganj</span>
+            <!-- 24-HOUR ENERGY SUMMARY -->
+            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+                <div>
+                  <h4 class="font-bold text-slate-900 text-sm sm:text-base">24-Hour Energy Consumption & Off-Peak Valley</h4>
+                  <p class="text-xs text-slate-500">Hourly energy draw across active fleet stations</p>
                 </div>
-                <p class="text-xs text-slate-500 mb-3">Transformer safe threshold: 150 kW</p>
-                <div class="h-56 w-full">
-                  <canvas id="dashboardLiveChart"></canvas>
+                <div class="flex items-center space-x-2 text-xs font-semibold">
+                  <span class="px-2 py-1 rounded bg-slate-100 text-slate-700" id="dash-total-energy-badge">Total: 0 kWh</span>
+                  <span class="px-2 py-1 rounded bg-emerald-50 text-emerald-700" id="dash-shifted-energy-badge">0 kWh Shifted</span>
                 </div>
               </div>
-              <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <span class="text-slate-500">Available Headroom</span>
-                <span class="font-bold text-emerald-600">45 kW (Safe)</span>
+              <div class="h-52 w-full">
+                <canvas id="dashboardEnergyChart"></canvas>
               </div>
-            </div>
-          </div>
-
-          <!-- 24-HOUR ENERGY SUMMARY -->
-          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
-              <div>
-                <h4 class="font-bold text-slate-900 text-sm sm:text-base">24-Hour Energy Consumption & Off-Peak Valley</h4>
-                <p class="text-xs text-slate-500">Hourly energy draw across Hazratganj, Gomti Nagar, Charbagh & Alambagh</p>
-              </div>
-              <div class="flex items-center space-x-2 text-xs font-semibold">
-                <span class="px-2 py-1 rounded bg-slate-100 text-slate-700">Total: 3,420 kWh</span>
-                <span class="px-2 py-1 rounded bg-emerald-50 text-emerald-700">1,240 kWh Shifted</span>
-              </div>
-            </div>
-            <div class="h-52 w-full">
-              <canvas id="dashboardEnergyChart"></canvas>
             </div>
           </div>
 
@@ -356,7 +422,6 @@
         <!-- ================= TAB 2: ORCHESTRATION ================= -->
         <section id="panel-orchestration" class="tab-panel hidden space-y-6">
 
-          <!-- Engine Control Banner -->
           <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
@@ -365,7 +430,7 @@
                   <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded">Core v2.7</span>
                 </div>
                 <p class="text-xs text-slate-500 mt-1 max-w-2xl">
-                  Decides <strong>WHICH</strong> EV charges first, <strong>WHERE</strong> (Cheapest vs Best Value station), <strong>WHEN</strong>, and <strong>HOW MUCH POWER</strong> to allocate within transformer thresholds.
+                  Decides <strong>WHICH</strong> EV charges first, <strong>WHERE</strong>, <strong>WHEN</strong>, and <strong>HOW MUCH POWER</strong> to allocate within transformer thresholds.
                 </p>
               </div>
 
@@ -381,7 +446,6 @@
               </div>
             </div>
 
-            <!-- Animation Drawer -->
             <div id="sim-progress-box" class="hidden mt-6 pt-6 border-t border-slate-100">
               <div class="flex items-center justify-between mb-2">
                 <span id="sim-step-text" class="text-xs font-bold text-blue-700 flex items-center">
@@ -404,31 +468,18 @@
                   <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
                   <h4 class="font-bold text-rose-900 text-xs sm:text-sm uppercase">WITHOUT VOLTFLOW (UNMANAGED)</h4>
                 </div>
-                <span class="bg-rose-600 text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full animate-pulse">
-                  🔴 GRID OVERLOAD
+                <span class="bg-rose-600 text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full" id="unmanaged-grid-tag">
+                  🔴 HIGH DEMAND
                 </span>
               </div>
               <p class="text-xs text-rose-700 mb-3">All EVs pull maximum rated power simultaneously upon arrival, exceeding transformer limit.</p>
               
-              <div class="space-y-2 text-xs">
-                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-rose-100">
-                  <span class="font-medium">EV-001 (Hazratganj @ Peak ₹14/kWh)</span>
-                  <span class="font-bold text-rose-700">60 kW (₹620)</span>
-                </div>
-                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-rose-100">
-                  <span class="font-medium">EV-002 (Gomti Nagar @ Peak ₹12/kWh)</span>
-                  <span class="font-bold text-rose-700">60 kW (₹405)</span>
-                </div>
-                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-rose-100">
-                  <span class="font-medium">EV-003 (Indira Nagar @ Peak ₹15/kWh)</span>
-                  <span class="font-bold text-rose-700">50 kW (₹380)</span>
-                </div>
-              </div>
+              <div class="space-y-2 text-xs" id="unmanaged-vehicles-list"></div>
 
               <div class="mt-4 pt-3 border-t border-rose-200 flex items-center justify-between">
                 <div>
                   <p class="text-[10px] sm:text-[11px] font-semibold text-rose-800">Total Unmanaged Load</p>
-                  <p class="text-xl sm:text-2xl font-black text-rose-900">170 kW</p>
+                  <p class="text-xl sm:text-2xl font-black text-rose-900" id="unmanaged-total-load">0 kW</p>
                 </div>
                 <div class="text-right">
                   <p class="text-[10px] sm:text-[11px] font-semibold text-rose-800">Grid Safe Limit</p>
@@ -449,29 +500,16 @@
               </div>
               <p class="text-xs text-emerald-800 mb-3">Power dynamically modulated according to SOC, deadlines & off-peak tariff savings.</p>
               
-              <div class="space-y-2 text-xs">
-                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-emerald-100">
-                  <span class="font-medium">EV-001 (Shifted: ₹10/kWh Gomti)</span>
-                  <span class="font-bold text-blue-600">45 kW (₹480 • Saved ₹140)</span>
-                </div>
-                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-emerald-100">
-                  <span class="font-medium">EV-002 (Gomti: ₹10/kWh)</span>
-                  <span class="font-bold text-rose-600">60 kW (₹320 • Saved ₹85)</span>
-                </div>
-                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-emerald-100">
-                  <span class="font-medium">EV-003 (Alambagh: Cheapest ₹9/kWh)</span>
-                  <span class="font-bold text-emerald-600">30 kW (₹215 • Saved ₹165)</span>
-                </div>
-              </div>
+              <div class="space-y-2 text-xs" id="managed-vehicles-list"></div>
 
               <div class="mt-4 pt-3 border-t border-emerald-200 flex items-center justify-between">
                 <div>
                   <p class="text-[10px] sm:text-[11px] font-semibold text-emerald-800">Total Optimized Load</p>
-                  <p class="text-xl sm:text-2xl font-black text-emerald-900">135 kW</p>
+                  <p class="text-xl sm:text-2xl font-black text-emerald-900" id="managed-total-load">0 kW</p>
                 </div>
                 <div class="text-right">
                   <p class="text-[10px] sm:text-[11px] font-semibold text-emerald-800">Peak Load Shaved</p>
-                  <p class="text-xl sm:text-2xl font-black text-emerald-600">20.6% ↓</p>
+                  <p class="text-xl sm:text-2xl font-black text-emerald-600" id="managed-shaved-pct">0.0% ↓</p>
                 </div>
               </div>
             </div>
@@ -481,23 +519,23 @@
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
               <p class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase">Peak Load Shaving</p>
-              <h5 class="text-xl sm:text-2xl font-black text-blue-600 mt-1">20.6% ↓</h5>
-              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Demo / Simulation Data</span>
+              <h5 class="text-xl sm:text-2xl font-black text-blue-600 mt-1" id="impact-card-shaved">0.0% ↓</h5>
+              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Smart Optimization</span>
             </div>
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
               <p class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase">Estimated Savings</p>
-              <h5 class="text-xl sm:text-2xl font-black text-emerald-600 mt-1">₹18,450 Saved</h5>
-              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Demo / Simulation Data</span>
+              <h5 class="text-xl sm:text-2xl font-black text-emerald-600 mt-1" id="impact-card-savings">₹0</h5>
+              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Off-Peak Tariff Shift</span>
             </div>
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
               <p class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase">Deadline Success</p>
-              <h5 class="text-xl sm:text-2xl font-black text-indigo-600 mt-1">98.7%</h5>
-              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Demo / Simulation Data</span>
+              <h5 class="text-xl sm:text-2xl font-black text-indigo-600 mt-1" id="impact-card-deadline">100%</h5>
+              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">On-Time Dispatches</span>
             </div>
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
               <p class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase">Energy Shifted</p>
-              <h5 class="text-xl sm:text-2xl font-black text-amber-600 mt-1">1,240 kWh</h5>
-              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Demo / Simulation Data</span>
+              <h5 class="text-xl sm:text-2xl font-black text-amber-600 mt-1" id="impact-card-energy">0 kWh</h5>
+              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Moved to Off-Peak Window</span>
             </div>
           </div>
 
@@ -509,7 +547,7 @@
                 <p class="text-xs text-slate-500">Calculates Energy Required × Price/kWh, Net Estimated Cost & Savings</p>
               </div>
               <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
-                Multi-Objective Optimization Active
+                Multi-Objective Optimization
               </span>
             </div>
             <div class="overflow-x-auto no-scrollbar">
@@ -568,16 +606,15 @@
 
         </section>
 
-        <!-- ================= TAB 3: FLEET REGISTRY (POINTS 2, 3, 4) ================= -->
+        <!-- ================= TAB 3: FLEET REGISTRY ================= -->
         <section id="panel-vehicles" class="tab-panel hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
               <div>
-                <h3 class="font-bold text-slate-900 text-base">Lucknow EV Fleet Registry & Telemetry</h3>
-                <p class="text-xs text-slate-500">Live battery SOC, dynamic charging loop & management</p>
+                <h3 class="font-bold text-slate-900 text-base">Fleet Registry & Live Telemetry</h3>
+                <p class="text-xs text-slate-500">Live battery SOC, dynamic charging loop & vehicle actions</p>
               </div>
               
-              <!-- Vehicle Actions (Point 2, 4) -->
               <div class="flex flex-wrap items-center gap-2">
                 <button onclick="downloadSampleCSV()" class="touch-btn text-xs font-semibold px-3 py-2 border border-slate-200 rounded-xl hover:bg-slate-50 text-slate-700 flex items-center space-x-1.5">
                   <i data-lucide="file-down" class="w-3.5 h-3.5"></i>
@@ -608,7 +645,7 @@
                 </select>
                 <input type="text" id="vehicle-search" onkeyup="filterVehicles()" placeholder="Search Plate/ID..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl focus:outline-none w-36 sm:w-48">
               </div>
-              <span class="text-xs text-slate-400 font-medium" id="fleet-count-indicator">Showing 8 vehicles</span>
+              <span class="text-xs text-slate-400 font-medium" id="fleet-count-indicator">Showing 0 vehicles</span>
             </div>
 
             <div class="overflow-x-auto no-scrollbar">
@@ -639,7 +676,7 @@
             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
               <div>
                 <h3 class="font-bold text-slate-900 text-base">Station Cost Comparison & Value Matrix</h3>
-                <p class="text-xs text-slate-500">Evaluates standard 30 kWh top-up cost across 5 Lucknow Hubs</p>
+                <p class="text-xs text-slate-500">Evaluates standard 30 kWh top-up cost across Lucknow Hubs</p>
               </div>
               <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
                 Auto-Tagger Active
@@ -663,9 +700,7 @@
             </div>
           </div>
 
-          <!-- STATIONS DETAILED CARDS -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6" id="stations-card-grid"></div>
-
         </section>
 
         <!-- ================= TAB 5: SMART SCHEDULE ================= -->
@@ -673,7 +708,7 @@
           <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
               <div>
-                <h3 class="font-bold text-slate-900 text-base">Fleet Charging Master Schedule (18 August 2026)</h3>
+                <h3 class="font-bold text-slate-900 text-base">Fleet Charging Master Schedule</h3>
                 <p class="text-xs text-slate-500">Synchronized with Departure Times, Gun Power Allocations & Safety Buffers</p>
               </div>
               <span class="text-xs bg-blue-50 text-blue-700 font-semibold px-3 py-1 rounded-lg self-start sm:self-auto">Safety Buffer Protected</span>
@@ -710,32 +745,32 @@
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Peak Load Shaved</p>
-                <p class="text-base sm:text-lg font-bold text-blue-600 mt-0.5">20.6% ↓</p>
+                <p class="text-base sm:text-lg font-bold text-blue-600 mt-0.5" id="analytics-kpi-shaved">0.0% ↓</p>
               </div>
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Cost Saved</p>
-                <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5">₹18,450</p>
+                <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5" id="analytics-kpi-savings">₹0</p>
               </div>
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Off-Peak Shift</p>
-                <p class="text-base sm:text-lg font-bold text-indigo-600 mt-0.5">1,240 kWh</p>
+                <p class="text-base sm:text-lg font-bold text-indigo-600 mt-0.5" id="analytics-kpi-energy">0 kWh</p>
               </div>
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Avg Charging Rate</p>
-                <p class="text-base sm:text-lg font-bold text-slate-800 mt-0.5">₹6.40/kWh</p>
+                <p class="text-base sm:text-lg font-bold text-slate-800 mt-0.5" id="analytics-kpi-rate">₹6.40/kWh</p>
               </div>
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Deadline Success</p>
-                <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5">98.7%</p>
+                <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5">100%</p>
               </div>
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Hub Utilization</p>
-                <p class="text-base sm:text-lg font-bold text-amber-600 mt-0.5">58%</p>
+                <p class="text-base sm:text-lg font-bold text-amber-600 mt-0.5" id="analytics-kpi-utilization">0%</p>
               </div>
             </div>
 
             <div>
-              <h4 class="font-bold text-slate-900 text-sm mb-1">Grid Load: Before vs After Optimization (24-Hour Comparison)</h4>
+              <h4 class="font-bold text-slate-900 text-sm mb-1">Grid Load: Before vs After Optimization</h4>
               <p class="text-xs text-slate-500 mb-4">Demonstrating unmanaged peak shaving under the 150 kW safe substation capacity</p>
               <div class="h-64 sm:h-80 w-full">
                 <canvas id="analyticsComparisonChart"></canvas>
@@ -754,7 +789,7 @@
 
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
               <h4 class="font-bold text-slate-900 text-sm mb-1">CO₂ Offset & Green Mile Efficiency</h4>
-              <p class="text-xs text-slate-500 mb-4">Estimated 1.48 tons of CO₂ offset this month</p>
+              <p class="text-xs text-slate-500 mb-4">Estimated CO₂ offset based on fleet distance</p>
               <div class="h-56 w-full">
                 <canvas id="analyticsGreenChart"></canvas>
               </div>
@@ -773,7 +808,7 @@
                 <h3 class="font-bold text-slate-900 text-base">Fleet Operations & Compliance Reports</h3>
                 <p class="text-xs text-slate-500">Automated audit logs, energy invoices & telemetry exports</p>
               </div>
-              <button onclick="alert('Exporting PDF audit log for 18 August 2026...')" class="touch-btn bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center space-x-1.5 self-start sm:self-auto">
+              <button onclick="alert('Exporting PDF audit log...')" class="touch-btn bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-xl flex items-center space-x-1.5 self-start sm:self-auto">
                 <i data-lucide="download" class="w-3.5 h-3.5"></i>
                 <span>Export Daily Log</span>
               </button>
@@ -791,16 +826,7 @@
                     <th class="py-3 px-4 text-right">Download</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 font-medium">
-                  <tr class="hover:bg-slate-50">
-                    <td class="py-3 px-4 font-bold">REP-20260818-01</td>
-                    <td class="py-3 px-4">Daily Fleet Telemetry Audit</td>
-                    <td class="py-3 px-4">18 Aug 2026</td>
-                    <td class="py-3 px-4 font-bold text-blue-600">3,420 kWh</td>
-                    <td class="py-3 px-4 font-black text-emerald-600">₹21,888</td>
-                    <td class="py-3 px-4 text-right"><button class="text-blue-600 hover:underline font-bold">PDF</button></td>
-                  </tr>
-                </tbody>
+                <tbody class="divide-y divide-slate-100 font-medium" id="reports-table-body"></tbody>
               </table>
             </div>
           </div>
@@ -809,7 +835,7 @@
         <!-- ================= TAB 9: USERS & ROLES ================= -->
         <section id="panel-users" class="tab-panel hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
-            <h3 class="font-bold text-slate-900 text-base mb-4">Fleet Operators & Access Control</h3>
+            <h3 class="font-bold text-slate-900 text-base mb-4">Workspace Operators & Access Control</h3>
             <div class="overflow-x-auto no-scrollbar">
               <table class="w-full text-left text-xs min-w-[550px]">
                 <thead class="bg-slate-50 text-slate-500 font-semibold uppercase border-b border-slate-100">
@@ -821,15 +847,7 @@
                     <th class="py-3 px-4 text-right">Status</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 font-medium">
-                  <tr class="hover:bg-slate-50">
-                    <td class="py-3 px-4 font-bold text-slate-900">Mayank Tiwari</td>
-                    <td class="py-3 px-4 text-slate-500">admin@voltflow.io</td>
-                    <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700">Fleet Admin</span></td>
-                    <td class="py-3 px-4">Lucknow Central Node</td>
-                    <td class="py-3 px-4 text-right"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">Active</span></td>
-                  </tr>
-                </tbody>
+                <tbody class="divide-y divide-slate-100 font-medium" id="users-table-body"></tbody>
               </table>
             </div>
           </div>
@@ -861,7 +879,7 @@
     </main>
   </div>
 
-  <!-- VEHICLE DETAILS MODAL (POINT 1 & 5) -->
+  <!-- VEHICLE DETAILS MODAL -->
   <div id="vehicle-details-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100">
@@ -879,7 +897,6 @@
         </button>
       </div>
 
-      <!-- Live Dynamic SOC Meter -->
       <div class="my-4 p-3.5 bg-slate-50 rounded-xl border border-slate-100">
         <div class="flex items-center justify-between text-xs font-bold mb-1.5">
           <span class="flex items-center"><span class="w-2 h-2 rounded-full bg-blue-600 mr-1.5 animate-pulse"></span>Live Battery SOC</span>
@@ -934,7 +951,7 @@
     </div>
   </div>
 
-  <!-- ADD VEHICLE MODAL (POINT 2) -->
+  <!-- ADD VEHICLE MODAL -->
   <div id="add-vehicle-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
     <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
       <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
@@ -953,7 +970,7 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-bold text-slate-700 mb-1">Vehicle ID</label>
-            <input type="text" id="new-vehicle-id" placeholder="e.g. EV-009" required class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+            <input type="text" id="new-vehicle-id" placeholder="e.g. EV-101" required class="w-full px-3 py-2 border border-slate-200 rounded-xl">
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">Number Plate</label>
@@ -964,7 +981,7 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-bold text-slate-700 mb-1">Vehicle Model</label>
-            <input type="text" id="new-model" placeholder="Tata Nexon EV" required class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+            <input type="text" id="new-model" placeholder="Tata Nexon EV Max" required class="w-full px-3 py-2 border border-slate-200 rounded-xl">
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">Battery Capacity (kWh)</label>
@@ -1028,14 +1045,14 @@
     </div>
   </div>
 
-  <!-- DELETE CONFIRMATION MODAL (POINT 3) -->
+  <!-- DELETE CONFIRMATION MODAL -->
   <div id="delete-vehicle-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 text-center">
       <div class="w-12 h-12 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3">
         <i data-lucide="trash-2" class="w-6 h-6"></i>
       </div>
       <h3 class="font-bold text-slate-900 text-base">Delete Vehicle?</h3>
-      <p class="text-xs text-slate-500 mt-1 mb-5">Are you sure you want to delete <strong id="delete-vehicle-id-text" class="text-slate-800"></strong> from the fleet registry? This action cannot be undone.</p>
+      <p class="text-xs text-slate-500 mt-1 mb-5">Are you sure you want to delete <strong id="delete-vehicle-id-text" class="text-slate-800"></strong> from your fleet? This will update your workspace.</p>
       
       <div class="grid grid-cols-2 gap-2 text-xs">
         <button onclick="closeDeleteModal()" class="touch-btn py-2.5 font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl">Cancel</button>

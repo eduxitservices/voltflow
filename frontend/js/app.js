@@ -1,7 +1,9 @@
-// VoltFlow Engine Controller — Full Simulation + CRUD + Auth + Live Loop
+// VoltFlow Complete Engine — User Data Sandboxing & Isolation Controller[cite: 1, 2]
 
-// 5 Lucknow Hubs with Station-Wise Pricing Models
-let fleetStations = [
+// 1. STANDARD DEMO DATASET (Preserved strictly for Demo Account)[cite: 1, 2]
+const DEMO_ACCOUNT_EMAIL = "admin@voltflow.io";
+
+const BASE_STATIONS_CATALOG = [
   {
     id: "CS-LKO-01",
     name: "Hazratganj EV Superhub",
@@ -94,8 +96,7 @@ let fleetStations = [
   }
 ];
 
-// Initial Vehicles List (Preserved)
-let fleetVehicles = [
+const DEMO_PRESET_VEHICLES = [
   {
     vehicleId: "EV-001",
     licensePlate: "UP32-EV-4101",
@@ -266,7 +267,7 @@ let fleetVehicles = [
   }
 ];
 
-let fleetAlerts = [
+const DEMO_PRESET_ALERTS = [
   {
     id: "ALT-01",
     severity: "critical",
@@ -289,59 +290,223 @@ let fleetAlerts = [
   }
 ];
 
+// 2. ACTIVE USER RUNTIME STATE[cite: 2]
+let currentUser = null;
+let userVehicles = [];
+let userAlerts = [];
+let fleetStations = JSON.parse(JSON.stringify(BASE_STATIONS_CATALOG)); // Station catalog[cite: 1, 2]
+
 let fleetMap = null;
 let vehicleToDeleteId = null;
 let currentSelectedModalVehicleId = null;
+let dashboardLiveChartInstance = null;
+let dashboardEnergyChartInstance = null;
+let analyticsComparisonChartInstance = null;
 
-// ================= INITIALIZATION & AUTH GUARD (POINT 5) =================
+// ================= APP INITIALIZATION =================
 document.addEventListener('DOMContentLoaded', () => {
+  initUsersDatabase();
   checkAuthSession();
   lucide.createIcons();
-  renderAllViews();
-  initMap();
-  initAllCharts();
-  startRealChargingSimulation(); // Point 1: Real-time simulation loop
+  startRealChargingSimulation(); // Point 1: 3.5-second charging pulse loop[cite: 1, 2]
 });
 
-function checkAuthSession() {
-  const token = localStorage.getItem('voltflow_auth_token');
-  const authModal = document.getElementById('auth-modal-container');
-  if (!token) {
-    authModal.classList.remove('hidden');
-  } else {
-    authModal.classList.add('hidden');
+// ================= USER STORAGE & AUTH LOGIC (POINT 1, 5, 8, 9, 10) =================
+function initUsersDatabase() {
+  if (!localStorage.getItem('vf_users_db')) {
+    const initialUsers = [
+      {
+        name: "VoltFlow Fleet Admin",
+        email: DEMO_ACCOUNT_EMAIL,
+        password: "adminpassword123",
+        role: "admin",
+        fleetName: "Lucknow Smart EV Fleet"
+      }
+    ];
+    localStorage.setItem('vf_users_db', JSON.stringify(initialUsers));
   }
+}
+
+function checkAuthSession() {
+  const session = localStorage.getItem('voltflow_session_user');
+  const authModal = document.getElementById('auth-modal-container');
+
+  if (session) {
+    currentUser = JSON.parse(session);
+    authModal.classList.add('hidden');
+    loadUserFleetData();
+    updateUserInterfaceHeaders();
+    renderAllViews();
+    initMap();
+    initAllCharts();
+  } else {
+    currentUser = null;
+    authModal.classList.remove('hidden');
+  }
+}
+
+function toggleAuthView(view) {
+  if (view === 'signup') {
+    document.getElementById('login-view').classList.add('hidden');
+    document.getElementById('signup-view').classList.remove('hidden');
+  } else {
+    document.getElementById('signup-view').classList.add('hidden');
+    document.getElementById('login-view').classList.remove('hidden');
+  }
+  lucide.createIcons();
 }
 
 function handleLogin(e) {
   e.preventDefault();
-  const email = document.getElementById('login-email').value;
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
   const password = document.getElementById('login-password').value;
 
-  if (email === 'admin@voltflow.io' && password === 'adminpassword123') {
-    localStorage.setItem('voltflow_auth_token', 'voltflow_jwt_session_token_lucknow_2026');
+  const users = JSON.parse(localStorage.getItem('vf_users_db') || '[]');
+  const matchedUser = users.find(u => u.email.toLowerCase() === email && u.password === password);
+
+  if (matchedUser) {
+    currentUser = matchedUser;
+    localStorage.setItem('voltflow_session_user', JSON.stringify(matchedUser));
     document.getElementById('auth-modal-container').classList.add('hidden');
+    loadUserFleetData();
+    updateUserInterfaceHeaders();
     renderAllViews();
+    initMap();
+    initAllCharts();
   } else {
-    alert('Invalid fleet admin credentials. Use admin@voltflow.io / adminpassword123');
+    alert('Invalid email or password. Please check your credentials or create an account.');
   }
 }
 
+function handleSignup(e) {
+  e.preventDefault();
+  const name = document.getElementById('signup-name').value.trim();
+  const email = document.getElementById('signup-email').value.trim().toLowerCase();
+  const password = document.getElementById('signup-password').value;
+  const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+  if (password !== confirmPassword) {
+    alert('Passwords do not match. Please re-enter.');
+    return;
+  }
+
+  const users = JSON.parse(localStorage.getItem('vf_users_db') || '[]');
+  if (users.some(u => u.email.toLowerCase() === email)) {
+    alert('An account with this email already exists. Please login.');
+    return;
+  }
+
+  const newUser = {
+    name: name,
+    email: email,
+    password: password,
+    role: "operator",
+    fleetName: `${name}'s EV Fleet`
+  };
+
+  users.push(newUser);
+  localStorage.setItem('vf_users_db', JSON.stringify(users));
+
+  // Initialize new user data as EMPTY (Point 4: 0 Vehicles, 0 Sessions, 0 Alerts)[cite: 2]
+  const userStorageKey = `vf_fleet_data_${email}`;
+  const emptyUserData = {
+    vehicles: [],
+    alerts: []
+  };
+  localStorage.setItem(userStorageKey, JSON.stringify(emptyUserData));
+
+  // Auto-login new user
+  currentUser = newUser;
+  localStorage.setItem('voltflow_session_user', JSON.stringify(newUser));
+  document.getElementById('auth-modal-container').classList.add('hidden');
+  
+  loadUserFleetData();
+  updateUserInterfaceHeaders();
+  renderAllViews();
+  initMap();
+  initAllCharts();
+}
+
 function handleLogout() {
-  localStorage.removeItem('voltflow_auth_token');
+  localStorage.removeItem('voltflow_session_user');
+  currentUser = null;
+  userVehicles = [];
+  userAlerts = [];
+  document.getElementById('login-form').reset();
+  document.getElementById('signup-form').reset();
+  toggleAuthView('login');
   document.getElementById('auth-modal-container').classList.remove('hidden');
+}
+
+function updateUserInterfaceHeaders() {
+  if (!currentUser) return;
+  
+  const userNameEl = document.getElementById('sidebar-user-name');
+  const userEmailEl = document.getElementById('sidebar-user-email');
+  const userInitialsEl = document.getElementById('sidebar-avatar-initials');
+
+  if (userNameEl) userNameEl.textContent = currentUser.name;
+  if (userEmailEl) userEmailEl.textContent = currentUser.email;
+  if (userInitialsEl) {
+    const initials = currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase();
+    userInitialsEl.textContent = initials.substring(0, 2) || 'VF';
+  }
+}
+
+// ================= POINT 3 & 4: DATA LOAD & PERSISTENCE ISOLATION =================
+function loadUserFleetData() {
+  if (!currentUser) return;
+
+  const storageKey = `vf_fleet_data_${currentUser.email}`;
+  const savedData = localStorage.getItem(storageKey);
+
+  if (currentUser.email === DEMO_ACCOUNT_EMAIL) {
+    // Demo Account: Loads full Lucknow fleet[cite: 1, 2]
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      userVehicles = parsed.vehicles || JSON.parse(JSON.stringify(DEMO_PRESET_VEHICLES));
+      userAlerts = parsed.alerts || JSON.parse(JSON.stringify(DEMO_PRESET_ALERTS));
+    } else {
+      userVehicles = JSON.parse(JSON.stringify(DEMO_PRESET_VEHICLES));
+      userAlerts = JSON.parse(JSON.stringify(DEMO_PRESET_ALERTS));
+      saveUserFleetData();
+    }
+  } else {
+    // New / Custom Users: Starts completely empty or loads their uploaded fleet[cite: 2]
+    if (savedData) {
+      const parsed = JSON.parse(savedData);
+      userVehicles = parsed.vehicles || [];
+      userAlerts = parsed.alerts || [];
+    } else {
+      userVehicles = [];
+      userAlerts = [];
+      saveUserFleetData();
+    }
+  }
+}
+
+function saveUserFleetData() {
+  if (!currentUser) return;
+  const storageKey = `vf_fleet_data_${currentUser.email}`;
+  const payload = {
+    vehicles: userVehicles,
+    alerts: userAlerts
+  };
+  localStorage.setItem(storageKey, JSON.stringify(payload));
 }
 
 // ================= POINT 1: REAL CHARGING SIMULATION LOOP =================
 function startRealChargingSimulation() {
   setInterval(() => {
+    if (!currentUser || userVehicles.length === 0) return;
+
     let updated = false;
 
-    fleetVehicles.forEach(v => {
+    userVehicles.forEach(v => {
       if (v.status === 'charging') {
         if (v.currentSOC < v.targetSOC) {
-          v.currentSOC += 1; // Increment SOC realistically
-          v.currentRangeKM = Math.min(Math.round(v.currentSOC * 3.3), 420);
+          v.currentSOC += 1;
+          v.currentRangeKM = Math.min(Math.round(v.currentSOC * 3.3), 450);
           updated = true;
         } else {
           v.status = 'completed';
@@ -353,28 +518,55 @@ function startRealChargingSimulation() {
     });
 
     if (updated) {
+      saveUserFleetData();
       updateDashboardKPIs();
       renderOrchestrationTable();
-      renderVehiclesTable(fleetVehicles);
+      renderVehiclesTable(userVehicles);
       renderSchedulesTable();
       
-      // Update open modal if visible
       if (currentSelectedModalVehicleId) {
         updateVehicleModalDynamic(currentSelectedModalVehicleId);
       }
     }
-  }, 3500); // 3.5-second realistic pulse
+  }, 3500);
 }
 
+// ================= METRICS & KPI UPDATES =================
 function updateDashboardKPIs() {
-  const total = fleetVehicles.length;
-  const charging = fleetVehicles.filter(v => v.status === 'charging').length;
-  const queued = fleetVehicles.filter(v => v.status === 'queued').length;
-  const transit = fleetVehicles.filter(v => v.status === 'in-transit').length;
-  const completed = fleetVehicles.filter(v => v.status === 'completed').length;
+  const total = userVehicles.length;
+  const charging = userVehicles.filter(v => v.status === 'charging').length;
+  const transit = userVehicles.filter(v => v.status === 'in-transit').length;
+  const completed = userVehicles.filter(v => v.status === 'completed').length;
+  const queued = userVehicles.filter(v => v.status === 'queued').length;
 
-  const totalSOC = fleetVehicles.reduce((acc, v) => acc + v.currentSOC, 0);
-  const avgSOC = (totalSOC / total).toFixed(1);
+  const totalSOC = total > 0 ? userVehicles.reduce((acc, v) => acc + v.currentSOC, 0) : 0;
+  const avgSOC = total > 0 ? (totalSOC / total).toFixed(1) : "0.0";
+
+  // Calculate current power load
+  const currentTotalLoadKW = userVehicles.reduce((acc, v) => acc + (v.currentChargingPowerKW || 0), 0);
+  const headroomKW = Math.max(0, 150 - currentTotalLoadKW);
+
+  // Dynamic cost savings
+  const totalSavings = userVehicles.reduce((acc, v) => {
+    const cost = calculateChargingCost(v);
+    return acc + (cost.estimatedSaving || 0);
+  }, 0);
+
+  // Update header & dashboard badges
+  const headerLoad = document.getElementById('header-grid-load');
+  if (headerLoad) headerLoad.textContent = currentTotalLoadKW;
+
+  const dashLoad = document.getElementById('dash-current-load');
+  if (dashLoad) dashLoad.textContent = `${currentTotalLoadKW} kW`;
+
+  const dashHeadroom = document.getElementById('dash-headroom');
+  if (dashHeadroom) dashHeadroom.textContent = `${headroomKW} kW`;
+
+  const dashSubHeadroom = document.getElementById('dash-sub-headroom');
+  if (dashSubHeadroom) dashSubHeadroom.textContent = `${headroomKW} kW`;
+
+  const dashOptCount = document.getElementById('dash-optimized-count');
+  if (dashOptCount) dashOptCount.textContent = `${total} / ${total}`;
 
   const fleetCountEl = document.getElementById('dash-kpi-fleet-count');
   if (fleetCountEl) fleetCountEl.textContent = `${total} EVs`;
@@ -384,17 +576,116 @@ function updateDashboardKPIs() {
 
   const avgSocEl = document.getElementById('dash-kpi-avg-soc');
   if (avgSocEl) avgSocEl.textContent = `${avgSOC}%`;
+
+  const savingsEl = document.getElementById('dash-kpi-savings');
+  if (savingsEl) savingsEl.textContent = totalSavings > 0 ? `₹${totalSavings.toLocaleString()}` : '₹0';
+
+  const peakShavedEl = document.getElementById('dash-kpi-peak-shaved');
+  if (peakShavedEl) peakShavedEl.textContent = total > 0 ? '20.6% ↓' : '0.0% ↓';
+
+  const throttledSub = document.getElementById('dash-kpi-throttled-sub');
+  if (throttledSub) throttledSub.textContent = total > 0 ? '35 kW throttled' : '0 kW throttled';
+
+  const sidebarBadge = document.getElementById('sidebar-alert-badge');
+  if (sidebarBadge) sidebarBadge.textContent = userAlerts.length;
+
+  // Toggle Empty State view (Point 4)[cite: 2]
+  const emptyState = document.getElementById('dashboard-empty-state');
+  const dataView = document.getElementById('dashboard-data-view');
+  if (emptyState && dataView) {
+    if (total === 0) {
+      emptyState.classList.remove('hidden');
+      dataView.classList.add('hidden');
+    } else {
+      emptyState.classList.add('hidden');
+      dataView.classList.remove('hidden');
+    }
+  }
+
+  // Update before/after comparison section in Orchestration
+  updateBeforeAfterSection(currentTotalLoadKW);
+}
+
+function updateBeforeAfterSection(managedLoadKW) {
+  const unmanagedLoad = userVehicles.reduce((acc, v) => acc + (v.batteryCapacityKWh >= 40 ? 60 : 40), 0);
+  const unmanagedLoadEl = document.getElementById('unmanaged-total-load');
+  const managedLoadEl = document.getElementById('managed-total-load');
+  const shavedPctEl = document.getElementById('managed-shaved-pct');
+  const unmanagedTag = document.getElementById('unmanaged-grid-tag');
+
+  if (unmanagedLoadEl) unmanagedLoadEl.textContent = `${unmanagedLoad} kW`;
+  if (managedLoadEl) managedLoadEl.textContent = `${managedLoadKW} kW`;
+
+  if (unmanagedTag) {
+    if (unmanagedLoad > 150) {
+      unmanagedTag.textContent = "🔴 GRID OVERLOAD";
+      unmanagedTag.className = "bg-rose-600 text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full animate-pulse";
+    } else {
+      unmanagedTag.textContent = "🟢 GRID SAFE";
+      unmanagedTag.className = "bg-emerald-600 text-white text-[10px] sm:text-[11px] font-bold px-2.5 py-0.5 rounded-full";
+    }
+  }
+
+  const shavedPct = unmanagedLoad > 0 ? (((unmanagedLoad - managedLoadKW) / unmanagedLoad) * 100).toFixed(1) : 0;
+  if (shavedPctEl) shavedPctEl.textContent = `${shavedPct}% ↓`;
+
+  // Update lists
+  const unmanagedList = document.getElementById('unmanaged-vehicles-list');
+  const managedList = document.getElementById('managed-vehicles-list');
+
+  if (unmanagedList) {
+    if (userVehicles.length === 0) {
+      unmanagedList.innerHTML = `<div class="p-3 text-center text-rose-500 font-medium">No vehicles registered.</div>`;
+    } else {
+      unmanagedList.innerHTML = userVehicles.slice(0, 3).map(v => `
+        <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-rose-100 font-medium">
+          <span>${v.vehicleId} (${v.assignedStation})</span>
+          <span class="font-bold text-rose-700">${v.batteryCapacityKWh >= 40 ? 60 : 40} kW (Unmanaged)</span>
+        </div>
+      `).join('');
+    }
+  }
+
+  if (managedList) {
+    if (userVehicles.length === 0) {
+      managedList.innerHTML = `<div class="p-3 text-center text-emerald-600 font-medium">No vehicles registered.</div>`;
+    } else {
+      managedList.innerHTML = userVehicles.slice(0, 3).map(v => `
+        <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-emerald-100 font-medium">
+          <span>${v.vehicleId} • Dep: ${v.departureDeadline.split(',')[1] || v.departureDeadline}</span>
+          <span class="font-bold text-blue-600">${v.currentChargingPowerKW} kW (Optimized)</span>
+        </div>
+      `).join('');
+    }
+  }
+}
+
+// ================= COST CALCULATION ENGINE =================
+function calculateChargingCost(vehicle) {
+  const energyRequired = Math.max(0, (vehicle.batteryCapacityKWh * (vehicle.targetSOC - vehicle.currentSOC)) / 100);
+  const station = fleetStations.find(s => s.id === vehicle.stationId) || fleetStations[0];
+  const pricePerKWh = station ? station.currentPrice : 10;
+  const estimatedCost = Math.round(energyRequired * pricePerKWh);
+  const estimatedSaving = vehicle.unmanagedCost > 0 ? Math.max(0, vehicle.unmanagedCost - estimatedCost) : Math.round(estimatedCost * 0.25);
+
+  return {
+    energyRequired: energyRequired.toFixed(1),
+    pricePerKWh,
+    estimatedCost,
+    estimatedSaving
+  };
 }
 
 // ================= VIEW RENDERERS =================
 function renderAllViews() {
   updateDashboardKPIs();
   renderOrchestrationTable();
-  renderVehiclesTable(fleetVehicles);
+  renderVehiclesTable(userVehicles);
   renderStationsGrid();
   renderStationComparisonTable();
   renderSchedulesTable();
   renderAlerts();
+  renderReportsAndUsersTable();
 }
 
 function getPriorityBadge(priority) {
@@ -412,27 +703,16 @@ function getStatusBadge(status) {
   return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">💤 Standby</span>';
 }
 
-function calculateChargingCost(vehicle) {
-  const energyRequired = Math.max(0, (vehicle.batteryCapacityKWh * (vehicle.targetSOC - vehicle.currentSOC)) / 100);
-  const station = fleetStations.find(s => s.id === vehicle.stationId) || fleetStations[0];
-  const pricePerKWh = station.currentPrice;
-  const estimatedCost = Math.round(energyRequired * pricePerKWh);
-  const estimatedSaving = vehicle.unmanagedCost > 0 ? Math.max(0, vehicle.unmanagedCost - estimatedCost) : 0;
-
-  return {
-    energyRequired: energyRequired.toFixed(1),
-    pricePerKWh,
-    estimatedCost,
-    estimatedSaving
-  };
-}
-
-// Orchestration Table Render
 function renderOrchestrationTable() {
   const tbody = document.getElementById('orchestration-table-body');
   if (!tbody) return;
 
-  tbody.innerHTML = fleetVehicles.map(v => {
+  if (userVehicles.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="10" class="py-8 text-center text-slate-400">No vehicles available for optimization. Add or upload fleet vehicles.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = userVehicles.map(v => {
     const costData = calculateChargingCost(v);
     return `
       <tr class="hover:bg-slate-50 transition-colors">
@@ -456,10 +736,14 @@ function renderOrchestrationTable() {
   }).join('');
 }
 
-// Vehicles Table with Add/Delete actions (Point 2 & 3)
 function renderVehiclesTable(vehicles) {
   const tbody = document.getElementById('vehicles-table-body');
   if (!tbody) return;
+
+  if (vehicles.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-400">Your fleet is empty. Click "+ Add Vehicle" or "Upload CSV" to begin.</td></tr>`;
+    return;
+  }
 
   tbody.innerHTML = vehicles.map(v => `
     <tr class="hover:bg-slate-50 transition-colors">
@@ -488,19 +772,24 @@ function renderVehiclesTable(vehicles) {
   if (countIndicator) countIndicator.textContent = `Showing ${vehicles.length} vehicles`;
 }
 
-// Master Schedule Render
 function renderSchedulesTable() {
   const tbody = document.getElementById('schedules-table-body');
   if (!tbody) return;
-  tbody.innerHTML = fleetVehicles.map(v => `
+
+  if (userVehicles.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11" class="py-8 text-center text-slate-400">No charging schedules generated. Add fleet vehicles to see smart schedules.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = userVehicles.map(v => `
     <tr class="hover:bg-slate-50">
       <td class="py-3 px-4 font-bold text-slate-900">${v.vehicleId}</td>
       <td class="py-3 px-4 font-bold">${v.currentSOC}%</td>
       <td class="py-3 px-4 font-bold text-blue-600">${v.targetSOC}%</td>
-      <td class="py-3 px-4 text-slate-600">${v.startTime}</td>
+      <td class="py-3 px-4 text-slate-600">${v.startTime || "05:00 AM"}</td>
       <td class="py-3 px-4 text-slate-800 font-semibold">${v.eta}</td>
       <td class="py-3 px-4 text-rose-600 font-semibold">${v.departureDeadline}</td>
-      <td class="py-3 px-4 text-emerald-700 font-bold bg-emerald-50/50">${v.safetyBuffer}</td>
+      <td class="py-3 px-4 text-emerald-700 font-bold bg-emerald-50/50">${v.safetyBuffer || "30 min"}</td>
       <td class="py-3 px-4">${getPriorityBadge(v.priority)}</td>
       <td class="py-3 px-4 text-slate-700">${v.assignedStation}</td>
       <td class="py-3 px-4 font-bold text-blue-600">${v.currentChargingPowerKW} kW</td>
@@ -509,7 +798,6 @@ function renderSchedulesTable() {
   `).join('');
 }
 
-// Station Comparisons
 function renderStationComparisonTable() {
   const tbody = document.getElementById('stations-comparison-tbody');
   if (!tbody) return;
@@ -533,7 +821,6 @@ function renderStationComparisonTable() {
   }).join('');
 }
 
-// Stations Grid
 function renderStationsGrid() {
   const grid = document.getElementById('stations-card-grid');
   if (!grid) return;
@@ -578,11 +865,16 @@ function renderStationsGrid() {
   `).join('');
 }
 
-// Alerts
 function renderAlerts() {
   const container = document.getElementById('panel-alerts');
   if (!container) return;
-  container.innerHTML = fleetAlerts.map(a => `
+
+  if (userAlerts.length === 0) {
+    container.innerHTML = `<div class="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400 text-xs">No active alerts for this fleet workspace. All vehicles operating within nominal thresholds.</div>`;
+    return;
+  }
+
+  container.innerHTML = userAlerts.map(a => `
     <div class="bg-white p-4 sm:p-5 rounded-2xl border border-rose-200 bg-rose-50/20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
         <div class="flex items-center space-x-2">
@@ -606,7 +898,36 @@ function applyAlertRecommendation(id) {
   alert(`Recommendation dispatched to OCPP hub for ${id}. Fast Gun reserved at off-peak rate.`);
 }
 
-// ================= POINT 2: ADD VEHICLE HANDLERS =================
+function renderReportsAndUsersTable() {
+  const reportsBody = document.getElementById('reports-table-body');
+  if (reportsBody) {
+    reportsBody.innerHTML = `
+      <tr class="hover:bg-slate-50">
+        <td class="py-3 px-4 font-bold">REP-${currentUser.email.substring(0, 4).toUpperCase()}-01</td>
+        <td class="py-3 px-4">${currentUser.name}'s Fleet Operations Audit</td>
+        <td class="py-3 px-4">18 Aug 2026</td>
+        <td class="py-3 px-4 font-bold text-blue-600">${userVehicles.length * 420} kWh</td>
+        <td class="py-3 px-4 font-black text-emerald-600">₹${(userVehicles.length * 420 * 6.4).toFixed(0)}</td>
+        <td class="py-3 px-4 text-right"><button class="text-blue-600 hover:underline font-bold">PDF</button></td>
+      </tr>
+    `;
+  }
+
+  const usersBody = document.getElementById('users-table-body');
+  if (usersBody) {
+    usersBody.innerHTML = `
+      <tr class="hover:bg-slate-50">
+        <td class="py-3 px-4 font-bold text-slate-900">${currentUser.name}</td>
+        <td class="py-3 px-4 text-slate-500">${currentUser.email}</td>
+        <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700">${currentUser.role.toUpperCase()}</span></td>
+        <td class="py-3 px-4">Lucknow Central Node</td>
+        <td class="py-3 px-4 text-right"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">Active</span></td>
+      </tr>
+    `;
+  }
+}
+
+// ================= POINT 7: VEHICLE ADD / DELETE HANDLERS =================
 function openAddVehicleModal() {
   document.getElementById('add-vehicle-modal').classList.remove('hidden');
 }
@@ -642,15 +963,15 @@ function handleCreateVehicle(e) {
     lng: station ? station.lng + (Math.random() * 0.005) : 80.9462
   };
 
-  fleetVehicles.unshift(newEV);
+  userVehicles.unshift(newEV);
+  saveUserFleetData();
   closeAddVehicleModal();
   document.getElementById('add-vehicle-form').reset();
   renderAllViews();
   if (fleetMap) updateMapMarkers();
-  alert(`Vehicle ${newEV.vehicleId} (${newEV.licensePlate}) added successfully!`);
+  alert(`Vehicle ${newEV.vehicleId} added successfully to your fleet!`);
 }
 
-// ================= POINT 3: DELETE VEHICLE CONFIRMATION =================
 function openDeleteModal(vehicleId) {
   vehicleToDeleteId = vehicleId;
   document.getElementById('delete-vehicle-id-text').textContent = vehicleId;
@@ -664,21 +985,22 @@ function closeDeleteModal() {
 
 function confirmDeleteVehicle() {
   if (!vehicleToDeleteId) return;
-  fleetVehicles = fleetVehicles.filter(v => v.vehicleId !== vehicleToDeleteId);
+  userVehicles = userVehicles.filter(v => v.vehicleId !== vehicleToDeleteId);
+  saveUserFleetData();
   closeDeleteModal();
   renderAllViews();
   if (fleetMap) updateMapMarkers();
 }
 
-// ================= POINT 4: CSV UPLOAD & SAMPLE DOWNLOAD =================
+// ================= POINT 6: CSV UPLOAD & SAMPLE DOWNLOAD =================
 function downloadSampleCSV() {
-  const headers = "vehicleId,numberPlate,model,batteryCapacity,currentSOC,targetSOC,location,departureTime,priority,status\\n";
-  const rows = "EV-010,UP32-EV-7722,Tata Nexon EV Max,40.5,35,90,Hazratganj,07:00 AM,High,charging\\nEV-011,UP32-EV-3311,MG ZS EV,50.3,55,85,Gomti Nagar,08:30 AM,Medium,idle";
+  const headers = "vehicleId,numberPlate,model,batteryCapacity,currentSOC,targetSOC,location,departureTime,priority,status\n";
+  const rows = "EV-101,UP32-EV-7722,Tata Nexon EV Max,40.5,35,90,Hazratganj,07:00 AM,High,charging\nEV-102,UP32-EV-3311,MG ZS EV,50.3,55,85,Gomti Nagar,08:30 AM,Medium,idle\nEV-103,UP32-EV-8844,Mahindra XUV400,39.4,18,90,Charbagh,06:15 AM,Critical,charging";
   const blob = new Blob([headers + rows], { type: "text/csv" });
   const url = window.URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.setAttribute('href', url);
-  a.setAttribute('download', 'voltflow_fleet_sample.csv');
+  a.setAttribute('download', 'voltflow_sample_fleet.csv');
   a.click();
 }
 
@@ -689,8 +1011,9 @@ function handleCSVUpload(e) {
   const reader = new FileReader();
   reader.onload = function(evt) {
     const text = evt.target.result;
-    const lines = text.split(/\\r\\n|\\n/);
+    const lines = text.split(/\r\n|\n/);
     let addedCount = 0;
+    let errors = [];
 
     for (let i = 1; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -709,7 +1032,7 @@ function handleCSVUpload(e) {
           status: (cols[9] && cols[9].trim()) || "idle",
           assignedStation: cols[6].trim() || "Hazratganj EV Superhub",
           stationId: "CS-LKO-01",
-          currentChargingPowerKW: 40,
+          currentChargingPowerKW: (cols[9] && cols[9].trim() === 'charging') ? 40 : 0,
           departureDeadline: `18 Aug 2026, ${cols[7].trim()}`,
           priority: cols[8] ? cols[8].trim() : "Medium",
           eta: "06:30 AM",
@@ -719,26 +1042,29 @@ function handleCSVUpload(e) {
           lat: 26.8467 + (Math.random() * 0.02 - 0.01),
           lng: 80.9462 + (Math.random() * 0.02 - 0.01)
         };
-        fleetVehicles.push(newVehicle);
+        userVehicles.push(newVehicle);
         addedCount++;
+      } else {
+        errors.push(`Row ${i + 1} has insufficient columns.`);
       }
     }
 
     if (addedCount > 0) {
+      saveUserFleetData();
       renderAllViews();
       if (fleetMap) updateMapMarkers();
-      alert(`Successfully imported ${addedCount} vehicles from CSV!`);
+      alert(`Successfully imported ${addedCount} vehicles to your workspace!`);
     } else {
-      alert('CSV format invalid. Please download Sample CSV for format.');
+      alert(`CSV Upload Failed:\n${errors.join('\n') || 'Please download the sample CSV for format.'}`);
     }
   };
   reader.readAsText(file);
 }
 
-// Vehicle Modal View
+// ================= MODAL & FILTER HELPERS =================
 function openVehicleModal(id) {
   currentSelectedModalVehicleId = id;
-  const v = fleetVehicles.find(item => item.vehicleId === id);
+  const v = userVehicles.find(item => item.vehicleId === id);
   if (!v) return;
 
   document.getElementById('modal-vehicle-id').textContent = v.vehicleId;
@@ -759,7 +1085,7 @@ function openVehicleModal(id) {
 }
 
 function updateVehicleModalDynamic(id) {
-  const v = fleetVehicles.find(item => item.vehicleId === id);
+  const v = userVehicles.find(item => item.vehicleId === id);
   if (!v) return;
   const socText = document.getElementById('modal-soc-text');
   const socBar = document.getElementById('modal-soc-bar');
@@ -779,12 +1105,11 @@ function closeVehicleModal() {
   document.getElementById('vehicle-details-modal').classList.add('hidden');
 }
 
-// Vehicle Table Filter
 function filterVehicles() {
   const statusFilter = document.getElementById('vehicle-filter-status').value;
   const search = document.getElementById('vehicle-search').value.toLowerCase();
 
-  const filtered = fleetVehicles.filter(v => {
+  const filtered = userVehicles.filter(v => {
     const matchesStatus = (statusFilter === 'all') || (v.status === statusFilter);
     const matchesSearch = v.vehicleId.toLowerCase().includes(search) || v.licensePlate.toLowerCase().includes(search) || v.model.toLowerCase().includes(search);
     return matchesStatus && matchesSearch;
@@ -840,10 +1165,10 @@ function closeSidebar() {
   document.getElementById('mobile-backdrop').classList.add('hidden');
 }
 
-// Leaflet Map & Markers
+// Interactive Leaflet Map
 function initMap() {
   const mapElement = document.getElementById('fleet-map');
-  if (!mapElement) return;
+  if (!mapElement || fleetMap) return;
 
   fleetMap = L.map('fleet-map').setView([26.8467, 80.9462], 12);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -857,6 +1182,13 @@ function initMap() {
 function updateMapMarkers() {
   if (!fleetMap) return;
 
+  // Clear previous layers
+  fleetMap.eachLayer((layer) => {
+    if (layer instanceof L.CircleMarker) {
+      fleetMap.removeLayer(layer);
+    }
+  });
+
   fleetStations.forEach(s => {
     L.circleMarker([s.lat, s.lng], {
       radius: 9,
@@ -867,7 +1199,7 @@ function updateMapMarkers() {
     }).addTo(fleetMap).bindPopup(`<b>${s.name}</b><br>Load: ${s.currentLoadKW}/${s.totalCapacityKW} kW<br>Rate: ₹${s.currentPrice}/kWh`);
   });
 
-  fleetVehicles.forEach(v => {
+  userVehicles.forEach(v => {
     L.circleMarker([v.lat, v.lng], {
       radius: 6,
       fillColor: v.priority === 'Critical' ? '#ef4444' : '#10b981',
@@ -878,7 +1210,7 @@ function updateMapMarkers() {
   });
 }
 
-// Orchestration Simulations
+// Multi-Step Simulation Pipeline
 function triggerSmartOptimization() {
   runPipeline([
     { text: "Analyzing Battery SOC & Energy Demand...", pct: 15 },
@@ -931,16 +1263,16 @@ function runPipeline(steps) {
   }, 450);
 }
 
-// Charts
+// Charts Initialization
 function initAllCharts() {
   const ctx1 = document.getElementById('dashboardLiveChart');
-  if (ctx1) {
-    new Chart(ctx1, {
+  if (ctx1 && !dashboardLiveChartInstance) {
+    dashboardLiveChartInstance = new Chart(ctx1, {
       type: 'line',
       data: {
         labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
         datasets: [
-          { label: 'Current Load (kW)', data: [65, 55, 105, 95, 70, 60, 50, 45, 80, 110, 90, 75], borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', fill: true, tension: 0.3 },
+          { label: 'Current Load (kW)', data: [0, 0, 45, 95, 70, 60, 50, 45, 80, 105, 90, 0], borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.1)', fill: true, tension: 0.3 },
           { label: '150 kW Safe Limit', data: Array(12).fill(150), borderColor: '#f59e0b', borderDash: [5, 5], pointRadius: 0 }
         ]
       },
@@ -949,13 +1281,13 @@ function initAllCharts() {
   }
 
   const ctx2 = document.getElementById('dashboardEnergyChart');
-  if (ctx2) {
-    new Chart(ctx2, {
+  if (ctx2 && !dashboardEnergyChartInstance) {
+    dashboardEnergyChartInstance = new Chart(ctx2, {
       type: 'bar',
       data: {
         labels: ['00-04', '04-08', '08-12', '12-16', '16-20', '20-24'],
         datasets: [
-          { label: 'Off-Peak Energy (kWh)', data: [680, 850, 420, 310, 480, 680], backgroundColor: '#3b82f6' },
+          { label: 'Off-Peak Energy (kWh)', data: [380, 650, 320, 210, 480, 580], backgroundColor: '#3b82f6' },
           { label: 'Peak Throttled (kWh)', data: [120, 240, 180, 90, 210, 150], backgroundColor: '#10b981' }
         ]
       },
@@ -964,14 +1296,14 @@ function initAllCharts() {
   }
 
   const ctx3 = document.getElementById('analyticsComparisonChart');
-  if (ctx3) {
-    new Chart(ctx3, {
+  if (ctx3 && !analyticsComparisonChartInstance) {
+    analyticsComparisonChartInstance = new Chart(ctx3, {
       type: 'line',
       data: {
         labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
         datasets: [
-          { label: 'Without VoltFlow (Unmanaged Peak Overload)', data: [70, 60, 110, 140, 175, 160, 90, 85, 120, 185, 170, 110], borderColor: '#ef4444', borderWidth: 2, tension: 0.3 },
-          { label: 'With VoltFlow (Cost-Optimized Peak Shaving)', data: [110, 125, 135, 120, 130, 115, 85, 80, 110, 135, 125, 115], borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.15)', fill: true, borderWidth: 2.5, tension: 0.3 },
+          { label: 'Without VoltFlow (Unmanaged Peak Overload)', data: [50, 40, 90, 140, 175, 160, 90, 85, 120, 185, 170, 80], borderColor: '#ef4444', borderWidth: 2, tension: 0.3 },
+          { label: 'With VoltFlow (Cost-Optimized Peak Shaving)', data: [80, 95, 115, 120, 130, 115, 85, 80, 110, 135, 125, 95], borderColor: '#2563eb', backgroundColor: 'rgba(37, 99, 235, 0.15)', fill: true, borderWidth: 2.5, tension: 0.3 },
           { label: '150 kW Grid Limit', data: Array(12).fill(150), borderColor: '#f59e0b', borderDash: [6, 6], pointRadius: 0 }
         ]
       },
