@@ -251,7 +251,7 @@
     <!-- MAIN SCROLLABLE AREA -->
     <main class="flex-1 flex flex-col h-full overflow-y-auto w-full">
 
-      <!-- HEADER -->
+      <!-- ================= ORIGINAL HEADER RESTORED ================= -->
       <header class="h-16 bg-white border-b border-slate-200 px-4 md:px-8 flex items-center justify-between sticky top-0 z-30">
         <div class="flex items-center space-x-3">
           <button onclick="toggleSidebar()" class="md:hidden text-slate-600 hover:text-slate-900 p-2 -ml-1 rounded-lg hover:bg-slate-100 touch-btn flex items-center justify-center">
@@ -259,14 +259,14 @@
           </button>
           <div>
             <h2 id="page-title" class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Dashboard Overview</h2>
-            <p class="text-[11px] text-slate-500 hidden sm:block">Automated charging priority & cost-saving telemetry OS</p>
+            <p class="text-[11px] text-slate-500 hidden sm:block">Real-time Lucknow fleet telemetry, energy load & power orchestration</p>
           </div>
         </div>
 
         <div class="flex items-center space-x-2 sm:space-x-3">
           <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
-            Grid: <span id="header-grid-status">Safe</span> (<span id="header-grid-load">0</span> / 150 kW)
+            Grid: Safe (<span id="header-grid-load">105</span> / 150 kW)
           </span>
           <button onclick="switchTab('orchestration')" class="flex items-center space-x-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-sm touch-btn">
             <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
@@ -281,26 +281,27 @@
       <!-- PANELS CONTAINER -->
       <div class="p-3 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
 
-        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <!-- ================= TAB 1: DASHBOARD (100% ORIGINAL RESTORED + STATUS STRIP) ================= -->
         <section id="panel-dashboard" class="tab-panel space-y-6">
 
-          <!-- SMART OPTIMIZATION STATUS HIGHLIGHT CARD -->
+          <!-- ⚡ SMART ORCHESTRATION STATUS (ADDITIONAL SECTION AS REQUESTED) -->
           <div class="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-2xl p-5 sm:p-6 text-white shadow-xl">
             <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
               <div>
                 <div class="flex flex-wrap items-center gap-2">
                   <span class="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center" id="dash-badge-status">
                     <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
-                    Automatic Smart Priority Active 🟢
+                    Optimization Active 🟢
                   </span>
                   <span class="text-xs text-slate-300" id="dash-date-badge">18 August 2026</span>
                 </div>
-                <h3 class="text-lg sm:text-xl font-bold text-white mt-2">SMART OPTIMIZATION STATUS</h3>
+                <h3 class="text-lg sm:text-xl font-bold text-white mt-2">⚡ SMART ORCHESTRATION STATUS</h3>
                 <p class="text-xs text-blue-200 mt-1 max-w-xl">
-                  VoltFlow engine dynamically prioritizes charging positions, balancing time-of-use tariffs, battery health, and substation constraints.
+                  VoltFlow engine is dynamically governing charging loads across Lucknow EV depots to prevent transformer overload while protecting departure deadlines.
                 </p>
               </div>
 
+              <!-- 4-Column Responsive Grid -->
               <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 w-full lg:w-auto text-center">
                 <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
                   <p class="text-[10px] sm:text-[11px] text-blue-200">Grid Limit</p>
@@ -308,57 +309,57 @@
                 </div>
                 <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
                   <p class="text-[10px] sm:text-[11px] text-blue-200">Current Load</p>
-                  <p class="text-base sm:text-lg font-black text-emerald-400" id="dash-current-load">0 kW</p>
+                  <p class="text-base sm:text-lg font-black text-emerald-400" id="dash-current-load">105 kW</p>
                 </div>
                 <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
                   <p class="text-[10px] sm:text-[11px] text-blue-200">Headroom</p>
-                  <p class="text-base sm:text-lg font-black text-cyan-300" id="dash-headroom">150 kW</p>
+                  <p class="text-base sm:text-lg font-black text-cyan-300" id="dash-headroom">45 kW</p>
                 </div>
                 <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
-                  <p class="text-[10px] sm:text-[11px] text-blue-200">Station Fleet</p>
-                  <p class="text-base sm:text-lg font-black text-amber-300" id="dash-optimized-count">0 / 0</p>
+                  <p class="text-[10px] sm:text-[11px] text-blue-200">Vehicles Optimized</p>
+                  <p class="text-base sm:text-lg font-black text-amber-300" id="dash-optimized-count">8 / 8</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- KPI CARDS -->
+          <!-- ORIGINAL: DASHBOARD KPI CARDS (RESTORED) -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
               <div class="flex items-center justify-between">
-                <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Station Fleet</p>
+                <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Total Vehicles</p>
                 <i data-lucide="car" class="w-4 h-4 text-blue-600"></i>
               </div>
-              <h4 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1" id="dash-kpi-fleet-count">0 EVs</h4>
-              <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate" id="dash-kpi-status-sub">0 Charging • 0 Standby</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1" id="dash-kpi-fleet-count">8 EVs</h4>
+              <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate" id="dash-kpi-status-sub">3 Charging • 2 Queued • 1 Transit</p>
             </div>
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
               <div class="flex items-center justify-between">
-                <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Peak Load Reduction</p>
-                <i data-lucide="trending-down" class="w-4 h-4 text-emerald-600"></i>
+                <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Charging Now</p>
+                <i data-lucide="zap" class="w-4 h-4 text-emerald-600"></i>
               </div>
-              <h4 class="text-xl sm:text-2xl font-bold text-blue-600 mt-1" id="dash-kpi-peak-shaved">20.6% ↓</h4>
-              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate" id="dash-kpi-throttled-sub">35 kW safely throttled</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-blue-600 mt-1" id="dash-kpi-charging-now">3 Active</h4>
+              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate" id="dash-kpi-throttled-sub">140 kW safe load</p>
             </div>
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
               <div class="flex items-center justify-between">
                 <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Estimated Savings</p>
                 <i data-lucide="wallet" class="w-4 h-4 text-indigo-600"></i>
               </div>
-              <h4 class="text-xl sm:text-2xl font-bold text-emerald-600 mt-1" id="dash-kpi-savings">₹0</h4>
-              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">Off-peak tariff optimization</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-emerald-600 mt-1" id="dash-kpi-savings">₹1,240</h4>
+              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">Off-peak tariff shift</p>
             </div>
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
               <div class="flex items-center justify-between">
                 <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Avg Fleet SOC</p>
                 <i data-lucide="battery-charging" class="w-4 h-4 text-amber-600"></i>
               </div>
-              <h4 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1" id="dash-kpi-avg-soc">0.0%</h4>
-              <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate">On-Time Dispatch Guard</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1" id="dash-kpi-avg-soc">54.2%</h4>
+              <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate">98.7% On-Time Dispatch</p>
             </div>
           </div>
 
-          <!-- AUTOMATIC DYNAMIC CHARGING QUEUE DISPLAY (POINT 1, 3, 4) -->
+          <!-- AUTOMATIC DYNAMIC CHARGING QUEUE DISPLAY (NOW CHARGING / NEXT / QUEUED) -->
           <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
             <div class="flex items-center justify-between mb-3">
               <div class="flex items-center space-x-2">
@@ -367,54 +368,36 @@
                 </div>
                 <div>
                   <h4 class="font-bold text-slate-900 text-sm sm:text-base">Automatic Charging Priority Queue</h4>
-                  <p class="text-[11px] text-slate-500">NOW CHARGING $\to$ NEXT $\to$ QUEUED (Auto-promoted on completion)</p>
+                  <p class="text-[11px] text-slate-500">NOW CHARGING (1st) $\to$ NEXT (2nd) $\to$ QUEUED (Auto-promoted)</p>
                 </div>
               </div>
-              <span class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2.5 py-1 rounded-full border border-indigo-200" id="queue-count-badge">0 In Queue</span>
+              <span class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2.5 py-1 rounded-full border border-indigo-200" id="queue-count-badge">2 In Queue</span>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3" id="dynamic-charging-queue-container"></div>
           </div>
 
-          <!-- EMPTY STATE CONTAINER -->
-          <div id="dashboard-empty-state" class="hidden bg-white rounded-3xl border border-dashed border-slate-300 p-8 sm:p-12 text-center">
-            <div class="w-14 h-14 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-4">
-              <i data-lucide="layers" class="w-7 h-7"></i>
-            </div>
-            <h3 class="text-lg font-bold text-slate-900">No fleet data available</h3>
-            <p class="text-xs text-slate-500 max-w-md mx-auto mt-1 mb-6">
-              Upload your vehicle CSV or add vehicles to start real-time telemetry, smart charging optimization, and cost monitoring.
-            </p>
-            <div class="flex flex-wrap items-center justify-center gap-3">
-              <button onclick="switchTab('vehicles'); openAddVehicleModal();" class="touch-btn px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md shadow-blue-600/30 flex items-center space-x-1.5">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>Add Vehicle</span>
-              </button>
-              <button onclick="triggerCSVFileInput()" class="touch-btn px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs flex items-center space-x-1.5">
-                <i data-lucide="upload" class="w-4 h-4"></i>
-                <span>Upload CSV</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- MAP & REAL-TIME LOAD -->
+          <!-- ORIGINAL: FLEET MAP & REAL-TIME CHARGING LOAD GRAPH (RESTORED) -->
           <div id="dashboard-data-view" class="space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+              
+              <!-- Original Map -->
               <div class="lg:col-span-2 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                 <div class="flex items-center justify-between mb-3">
                   <div>
-                    <h4 class="font-bold text-slate-900 text-sm sm:text-base">Station Fleet Live Geospatial Map</h4>
-                    <p class="text-xs text-slate-500">Live GPS tracking & Charging Depot Telemetry</p>
+                    <h4 class="font-bold text-slate-900 text-sm sm:text-base">Lucknow EV Fleet Live Geospatial Map</h4>
+                    <p class="text-xs text-slate-500">Live GPS tracking & Charging Depot Telemetry (18 Aug 2026)</p>
                   </div>
                   <span class="text-xs bg-emerald-50 text-emerald-700 font-semibold px-2.5 py-1 rounded-full border border-emerald-200" id="dash-active-hubs-badge">5 Hubs Active</span>
                 </div>
                 <div id="fleet-map"></div>
               </div>
 
+              <!-- Original Charging Load (Real-Time) -->
               <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
                 <div>
                   <div class="flex items-center justify-between mb-2">
-                    <h4 class="font-bold text-slate-900 text-sm">Hub Power vs Grid Cap</h4>
+                    <h4 class="font-bold text-slate-900 text-sm">Charging Load (Real-time)</h4>
                     <span class="text-[10px] font-bold bg-blue-50 text-blue-600 px-2 py-0.5 rounded">Hazratganj</span>
                   </div>
                   <p class="text-xs text-slate-500 mb-3">Transformer safe threshold: 150 kW</p>
@@ -424,21 +407,21 @@
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                   <span class="text-slate-500">Available Headroom</span>
-                  <span class="font-bold text-emerald-600" id="dash-sub-headroom">150 kW</span>
+                  <span class="font-bold text-emerald-600" id="dash-sub-headroom">45 kW (Safe)</span>
                 </div>
               </div>
             </div>
 
-            <!-- 24-HOUR ENERGY SUMMARY -->
+            <!-- ORIGINAL: ENERGY CONSUMED TODAY (RESTORED) -->
             <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
               <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
                 <div>
-                  <h4 class="font-bold text-slate-900 text-sm sm:text-base">24-Hour Energy Consumption & Off-Peak Valley</h4>
-                  <p class="text-xs text-slate-500">Hourly energy draw across active fleet stations</p>
+                  <h4 class="font-bold text-slate-900 text-sm sm:text-base">Energy Consumed Today (24-Hour Comparison)</h4>
+                  <p class="text-xs text-slate-500">Hourly energy draw across Hazratganj, Gomti Nagar, Charbagh & Alambagh</p>
                 </div>
                 <div class="flex items-center space-x-2 text-xs font-semibold">
-                  <span class="px-2 py-1 rounded bg-slate-100 text-slate-700" id="dash-total-energy-badge">Total: 0 kWh</span>
-                  <span class="px-2 py-1 rounded bg-emerald-50 text-emerald-700" id="dash-shifted-energy-badge">0 kWh Shifted</span>
+                  <span class="px-2 py-1 rounded bg-slate-100 text-slate-700" id="dash-total-energy-badge">Total: 3,420 kWh</span>
+                  <span class="px-2 py-1 rounded bg-emerald-50 text-emerald-700" id="dash-shifted-energy-badge">1,240 kWh Shifted</span>
                 </div>
               </div>
               <div class="h-52 w-full">
@@ -457,7 +440,7 @@
               <div>
                 <div class="flex items-center space-x-2">
                   <h3 class="text-lg sm:text-xl font-bold text-slate-900">Cost-Aware Smart Orchestration Engine</h3>
-                  <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded">Core v2.9</span>
+                  <span class="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded">Core v3.0</span>
                 </div>
                 <p class="text-xs text-slate-500 mt-1 max-w-2xl">
                   Decides <strong>WHICH</strong> EV charges first, <strong>WHERE</strong>, <strong>WHEN</strong>, and <strong>HOW MUCH POWER</strong> to allocate within transformer thresholds. Updates real-time state in-place.
@@ -509,7 +492,7 @@
               <div class="mt-4 pt-3 border-t border-rose-200 flex items-center justify-between">
                 <div>
                   <p class="text-[10px] sm:text-[11px] font-semibold text-rose-800">Total Unmanaged Load</p>
-                  <p class="text-xl sm:text-2xl font-black text-rose-900" id="unmanaged-total-load">0 kW</p>
+                  <p class="text-xl sm:text-2xl font-black text-rose-900" id="unmanaged-total-load">170 kW</p>
                 </div>
                 <div class="text-right">
                   <p class="text-[10px] sm:text-[11px] font-semibold text-rose-800">Grid Safe Limit</p>
@@ -535,7 +518,7 @@
               <div class="mt-4 pt-3 border-t border-emerald-200 flex items-center justify-between">
                 <div>
                   <p class="text-[10px] sm:text-[11px] font-semibold text-emerald-800">Total Optimized Load</p>
-                  <p class="text-xl sm:text-2xl font-black text-emerald-900" id="managed-total-load">0 kW</p>
+                  <p class="text-xl sm:text-2xl font-black text-emerald-900" id="managed-total-load">140 kW</p>
                 </div>
                 <div class="text-right">
                   <p class="text-[10px] sm:text-[11px] font-semibold text-emerald-800">Peak Load Shaved</p>
@@ -554,7 +537,7 @@
             </div>
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
               <p class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase">Estimated Savings</p>
-              <h5 class="text-xl sm:text-2xl font-black text-emerald-600 mt-1" id="impact-card-savings">₹0</h5>
+              <h5 class="text-xl sm:text-2xl font-black text-emerald-600 mt-1" id="impact-card-savings">₹1,240 Saved</h5>
               <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Off-Peak Tariff Shift</span>
             </div>
             <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
@@ -590,7 +573,7 @@
                     <th class="py-3 px-4">Power</th>
                     <th class="py-3 px-4">Energy Req.</th>
                     <th class="py-3 px-4">Rate</th>
-                    <th class="py-3 px-4">Est. Cost</th>
+                    <th class="py-3 px-4">Estimated Cost</th>
                     <th class="py-3 px-4">Estimated Saving</th>
                     <th class="py-3 px-4">Deadline</th>
                     <th class="py-3 px-4 text-right">Details</th>
@@ -676,7 +659,7 @@
                 </select>
                 <input type="text" id="vehicle-search" onkeyup="filterVehicles()" placeholder="Search Plate/ID..." class="text-xs px-3 py-2 border border-slate-200 rounded-xl focus:outline-none w-36 sm:w-48">
               </div>
-              <span class="text-xs text-slate-400 font-medium" id="fleet-count-indicator">Showing 0 vehicles</span>
+              <span class="text-xs text-slate-400 font-medium" id="fleet-count-indicator">Showing 8 vehicles</span>
             </div>
 
             <div class="overflow-x-auto no-scrollbar">
@@ -768,11 +751,11 @@
           </div>
         </section>
 
-        <!-- ================= TAB 6: SAVINGS & ANALYTICS (POINTS 8, 9, 10, 11) ================= -->
+        <!-- ================= TAB 6: SAVINGS & ANALYTICS ================= -->
         <section id="panel-analytics" class="tab-panel hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
             
-            <!-- SAVINGS DATE RANGE FILTER (POINT 8) -->
+            <!-- SAVINGS DATE RANGE FILTER -->
             <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 mb-6 gap-3">
               <div>
                 <h3 class="text-sm sm:text-base font-bold text-slate-900 uppercase tracking-wider text-blue-700">SMART CHARGING IMPACT & SAVINGS ANALYTICS</h3>
@@ -800,23 +783,23 @@
               </div>
             </div>
             
-            <!-- DYNAMIC SAVINGS KPI STRIP (POINT 9) -->
+            <!-- DYNAMIC SAVINGS KPI STRIP -->
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Total Savings</p>
-                <p class="text-base sm:text-lg font-black text-emerald-600 mt-0.5" id="analytics-total-savings">₹0</p>
+                <p class="text-base sm:text-lg font-black text-emerald-600 mt-0.5" id="analytics-total-savings">₹1,240</p>
               </div>
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Energy Cost Saved</p>
-                <p class="text-base sm:text-lg font-bold text-blue-600 mt-0.5" id="analytics-cost-saved">₹0</p>
+                <p class="text-base sm:text-lg font-bold text-blue-600 mt-0.5" id="analytics-cost-saved">₹1,054</p>
               </div>
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Avg Daily Saving</p>
-                <p class="text-base sm:text-lg font-bold text-slate-800 mt-0.5" id="analytics-avg-daily">₹0/day</p>
+                <p class="text-base sm:text-lg font-bold text-slate-800 mt-0.5" id="analytics-avg-daily">₹41/day</p>
               </div>
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Optimized Sessions</p>
-                <p class="text-base sm:text-lg font-bold text-indigo-600 mt-0.5" id="analytics-sessions-count">0</p>
+                <p class="text-base sm:text-lg font-bold text-indigo-600 mt-0.5" id="analytics-sessions-count">480</p>
               </div>
               <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
                 <p class="text-[10px] font-semibold text-slate-500 uppercase">Peak Load Reduction</p>
@@ -828,7 +811,7 @@
               </div>
             </div>
 
-            <!-- DYNAMIC SAVINGS TIMELINE GRAPH (POINT 10) -->
+            <!-- DYNAMIC SAVINGS TIMELINE GRAPH -->
             <div class="mb-8">
               <div class="flex items-center justify-between mb-2">
                 <h4 class="font-bold text-slate-900 text-sm" id="savings-graph-title">Charging Cost Savings — Last 30 Days</h4>
@@ -902,7 +885,7 @@
           </div>
         </section>
 
-        <!-- ================= TAB 9: USERS & ROLES (POINTS 13, 14, 15, 16, 17) ================= -->
+        <!-- ================= TAB 9: USERS & ROLES ================= -->
         <section id="panel-users" class="tab-panel hidden space-y-6">
           <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
@@ -1102,7 +1085,7 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block font-bold text-slate-700 mb-1">Departure Time <span class="text-rose-500">*</span></label>
-            <input type="text" id="new-deadline" placeholder="e.g. 05:45 AM or in 45 min" required class="w-full px-3 py-2 border border-slate-200 rounded-xl">
+            <input type="text" id="new-deadline" placeholder="e.g. 30 min, 1 hour, or 05:45 AM" required class="w-full px-3 py-2 border border-slate-200 rounded-xl">
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">Initial Status</label>
