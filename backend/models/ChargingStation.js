@@ -1,24 +1,28 @@
 const mongoose = require('mongoose');
 
-const chargingStationSchema = new mongoose.Schema({
+const ChargingStationSchema = new mongoose.Schema({
   stationId: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   location: {
+    address: { type: String, required: true },
     lat: { type: Number, required: true },
     lng: { type: Number, required: true }
   },
-  address: { type: String, required: true },
-  chargerType: { type: String, enum: ['AC Type 2', 'CCS2 Fast Charger', 'CHAdeMO'], default: 'CCS2 Fast Charger' },
-  totalConnectors: { type: Number, required: true, default: 4 },
-  availableConnectors: { type: Number, required: true, default: 4 },
-  powerCapacity: { type: Number, required: true }, // Max kW rating
-  currentLoad: { type: Number, default: 0 }, // Current active kW
-  status: { 
-    type: String, 
-    enum: ['Available', 'Charging', 'Busy', 'Offline', 'Maintenance'], 
-    default: 'Available' 
-  },
-  createdAt: { type: Date, default: Date.now }
-});
+  totalCapacityKW: { type: Number, required: true },
+  currentLoadKW: { type: Number, default: 0 },
+  totalGuns: { type: Number, required: true },
+  activeGuns: { type: Number, default: 0 },
+  gridLimitKW: { type: Number, required: true },
+  status: { type: String, enum: ['operational', 'maintenance', 'offline'], default: 'operational' },
+  
+  // Point 15: Pricing Model (AC, DC Fast, Peak, Off-Peak)
+  pricing: {
+    acPricePerKWh: { type: Number, required: true },
+    dcPricePerKWh: { type: Number, required: true },
+    peakPricePerKWh: { type: Number, required: true },
+    offPeakPricePerKWh: { type: Number, required: true },
+    currentActivePricePerKWh: { type: Number, required: true }
+  }
+}, { timestamps: true });
 
-module.exports = mongoose.model('ChargingStation', chargingStationSchema);
+module.exports = mongoose.model('ChargingStation', ChargingStationSchema);

@@ -3,205 +3,635 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>VoltFlow — EV Fleet Charging Orchestrator</title>
+  <title>VoltFlow — Cost-Aware Smart EV Fleet Orchestration</title>
   
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="/socket.io/socket.io.js"></script>
-</head>
-<body>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- AUTH MODAL OVERLAY -->
-  <div class="auth-overlay" id="authOverlay" style="display: none;">
-    <div class="auth-card">
-      <div class="auth-left-hero">
-        <div class="auth-logo-badge">
-          <i class="fa-solid fa-bolt"></i>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eff6ff', 100: '#dbeafe', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 900: '#1e3a8a' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Mobile Touch & Scroll Fixes (Point 20, 21) */
+    html, body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .touch-btn { min-height: 44px; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 font-sans antialiased min-h-screen flex flex-col selection:bg-blue-500 selection:text-white">
+
+  <!-- TOP SIMULATION BANNER (POINT 12, 13) -->
+  <div class="bg-slate-900 text-slate-200 text-xs px-3 py-2 border-b border-slate-800 flex flex-col md:flex-row items-center justify-between gap-1">
+    <div class="flex items-center space-x-2 w-full md:w-auto justify-between md:justify-start">
+      <span class="inline-flex items-center text-[10px] font-bold uppercase tracking-wider bg-slate-800 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
+        Demo Mode / Simulated Telemetry
+      </span>
+      <span class="text-[11px] text-slate-400">Date: <strong class="text-white">18 August 2026</strong></span>
+    </div>
+    <p class="text-[10px] text-slate-400 text-center md:text-right hidden sm:block">
+      VoltFlow consumes EV telemetry & OCPP chargers. This prototype runs simulated telemetry for demonstration.
+    </p>
+  </div>
+
+  <div class="flex flex-1 overflow-hidden relative">
+
+    <!-- MOBILE SIDEBAR BACKDROP -->
+    <div id="mobile-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-slate-900/60 z-40 hidden transition-opacity"></div>
+
+    <!-- SIDEBAR NAVIGATION (POINT 20) -->
+    <aside id="app-sidebar" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-xl md:shadow-none">
+      
+      <!-- Brand Header -->
+      <div class="h-16 flex items-center justify-between px-6 border-b border-slate-100">
+        <div class="flex items-center space-x-3">
+          <div class="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center text-white shadow-md shadow-blue-500/30">
+            <i data-lucide="zap" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-lg leading-none tracking-tight text-slate-900">Volt<span class="text-blue-600">Flow</span></h1>
+            <span class="text-[10px] font-medium text-slate-400 tracking-wider uppercase">Cost-Aware OS</span>
+          </div>
         </div>
-        <div>
-          <h2>VoltFlow</h2>
-          <p class="hero-tag">Smart Charging. Smarter Fleet. Greener Lucknow.</p>
+        <button onclick="toggleSidebar()" class="md:hidden text-slate-400 hover:text-slate-600 p-2">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex-1 px-4 py-4 space-y-1.5 overflow-y-auto">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-item touch-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-blue-600 bg-blue-50/80 transition-all">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Dashboard</span>
+        </button>
+
+        <button onclick="switchTab('orchestration')" id="nav-orchestration" class="nav-item touch-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+          <div class="flex items-center space-x-3">
+            <i data-lucide="cpu" class="w-4 h-4 text-blue-600"></i>
+            <span>Orchestration</span>
+          </div>
+          <span class="bg-blue-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Core</span>
+        </button>
+
+        <button onclick="switchTab('vehicles')" id="nav-vehicles" class="nav-item touch-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+          <i data-lucide="car" class="w-4 h-4"></i>
+          <span>Fleet Vehicles</span>
+        </button>
+
+        <button onclick="switchTab('stations')" id="nav-stations" class="nav-item touch-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+          <i data-lucide="fuel" class="w-4 h-4"></i>
+          <span>Hubs & Pricing</span>
+        </button>
+
+        <button onclick="switchTab('schedule')" id="nav-schedule" class="nav-item touch-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+          <i data-lucide="calendar-clock" class="w-4 h-4"></i>
+          <span>Smart Schedules</span>
+        </button>
+
+        <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-item touch-btn w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+          <i data-lucide="bar-chart-3" class="w-4 h-4"></i>
+          <span>Impact & Costs</span>
+        </button>
+
+        <button onclick="switchTab('alerts')" id="nav-alerts" class="nav-item touch-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-all">
+          <div class="flex items-center space-x-3">
+            <i data-lucide="bell" class="w-4 h-4"></i>
+            <span>Fleet Alerts</span>
+          </div>
+          <span class="bg-rose-500 text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">1</span>
+        </button>
+      </nav>
+
+      <!-- User Profile Card -->
+      <div class="p-4 border-t border-slate-200 bg-slate-50/50">
+        <div class="flex items-center space-x-3">
+          <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-bold text-xs">
+            LK
+          </div>
+          <div class="truncate">
+            <p class="text-xs font-semibold text-slate-900 truncate">Lucknow EV Operations</p>
+            <p class="text-[10px] text-slate-500 truncate">admin@voltflow.io</p>
+          </div>
         </div>
-        <div class="hero-ev-graphic">
-          <i class="fa-solid fa-car-battery" style="font-size: 70px; color: rgba(255,255,255,0.85);"></i>
+      </div>
+    </aside>
+
+    <!-- MAIN SCROLLABLE AREA -->
+    <main class="flex-1 flex flex-col h-full overflow-y-auto w-full">
+
+      <!-- MOBILE / DESKTOP HEADER (POINT 20) -->
+      <header class="h-16 bg-white border-b border-slate-200 px-4 md:px-8 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center space-x-3">
+          <button onclick="toggleSidebar()" class="md:hidden text-slate-600 hover:text-slate-900 p-2 -ml-1 rounded-lg hover:bg-slate-100 touch-btn flex items-center justify-center">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+          <div>
+            <h2 id="page-title" class="text-base sm:text-lg font-bold text-slate-900 leading-tight">Dashboard Overview</h2>
+            <p class="text-[11px] text-slate-500 hidden sm:block">Cost-aware power modulation & multi-objective dispatch</p>
+          </div>
+        </div>
+
+        <div class="flex items-center space-x-2 sm:space-x-3">
+          <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5 animate-pulse"></span>
+            Grid: Safe (105 / 150 kW)
+          </span>
+          <button onclick="switchTab('orchestration')" class="flex items-center space-x-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-sm touch-btn">
+            <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+            <span>Orchestrator</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- CONTENT PANELS CONTAINER -->
+      <div class="p-3 sm:p-6 md:p-8 space-y-6 max-w-7xl mx-auto w-full">
+
+        <!-- ================= TAB 1: DASHBOARD (POINT 10 & 20 MOBILE CARDS) ================= -->
+        <section id="panel-dashboard" class="tab-panel space-y-6">
+
+          <!-- SMART OPTIMIZATION STATUS CARD -->
+          <div class="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-2xl p-5 sm:p-6 text-white shadow-xl">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6">
+              <div>
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse mr-1.5"></span>
+                    Optimization Active 🟢
+                  </span>
+                  <span class="text-xs text-slate-300">18 August 2026, 04:30 AM</span>
+                </div>
+                <h3 class="text-lg sm:text-xl font-bold text-white mt-2">SMART OPTIMIZATION STATUS</h3>
+                <p class="text-xs text-blue-200 mt-1 max-w-xl">
+                  VoltFlow is balancing charging costs (₹6–13/kWh), departure deadlines, and transformer thresholds across 5 Lucknow hubs.
+                </p>
+              </div>
+
+              <!-- Dashboard Mobile 2-Column Responsive Grid (Point 20) -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 w-full lg:w-auto text-center">
+                <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
+                  <p class="text-[10px] sm:text-[11px] text-blue-200">Grid Limit</p>
+                  <p class="text-base sm:text-lg font-black text-white">150 kW</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
+                  <p class="text-[10px] sm:text-[11px] text-blue-200">Current Load</p>
+                  <p class="text-base sm:text-lg font-black text-emerald-400">105 kW</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
+                  <p class="text-[10px] sm:text-[11px] text-blue-200">Headroom</p>
+                  <p class="text-base sm:text-lg font-black text-cyan-300">45 kW</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur rounded-xl p-2.5 sm:p-3 border border-white/10">
+                  <p class="text-[10px] sm:text-[11px] text-blue-200">Optimized EVs</p>
+                  <p class="text-base sm:text-lg font-black text-amber-300">4 / 4</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- KPI Cards Grid -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Fleet Size</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-slate-900 mt-1">4 EVs</h4>
+              <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate">3 Charging • 1 Standby</p>
+            </div>
+            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Peak Throttled</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-blue-600 mt-1">20.6% ↓</h4>
+              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">35 kW safely shifted</p>
+            </div>
+            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Cost Savings</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-emerald-600 mt-1">₹18,450</h4>
+              <p class="text-[10px] sm:text-[11px] text-slate-500 mt-0.5 truncate">Cheapest hub routing</p>
+            </div>
+            <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+              <p class="text-[10px] sm:text-xs font-semibold text-slate-500 uppercase">Deadline Success</p>
+              <h4 class="text-xl sm:text-2xl font-bold text-indigo-600 mt-1">98.7%</h4>
+              <p class="text-[10px] sm:text-[11px] text-emerald-600 font-medium mt-0.5 truncate">Zero missed departures</p>
+            </div>
+          </div>
+
+          <!-- Real-Time Chart -->
+          <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+              <div>
+                <h4 class="font-bold text-slate-900 text-sm">Real-Time Hub Power vs Transformer Threshold</h4>
+                <p class="text-xs text-slate-500">Hazratganj EV Superhub (150 kW Grid Limit) — 18 Aug 2026</p>
+              </div>
+              <span class="text-xs font-semibold text-blue-600 bg-blue-50 px-2.5 py-1 rounded self-start sm:self-auto">Live Telemetry</span>
+            </div>
+            <div class="h-60 sm:h-72 w-full">
+              <canvas id="dashboardLiveChart"></canvas>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ================= TAB 2: ORCHESTRATION (POINTS 1, 2, 3, 4, 16, 19) ================= -->
+        <section id="panel-orchestration" class="tab-panel hidden space-y-6">
+
+          <!-- Controls Header -->
+          <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <div class="flex items-center space-x-2">
+                  <h3 class="text-lg sm:text-xl font-bold text-slate-900">Cost-Aware Smart Orchestration Engine</h3>
+                  <span class="bg-blue-100 text-blue-700 text-[10px] sm:text-xs font-bold px-2 py-0.5 rounded">Core v2.7</span>
+                </div>
+                <p class="text-xs text-slate-500 mt-1 max-w-2xl">
+                  Decides <strong>WHICH</strong> EV charges first, <strong>WHERE</strong> (Cheapest vs Best Value hub), <strong>WHEN</strong>, and <strong>HOW MUCH POWER</strong> to assign under grid caps and deadlines.
+                </p>
+              </div>
+
+              <!-- Full-Width Mobile Action Buttons (Point 20) -->
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full md:w-auto">
+                <button id="btn-live-sim" onclick="runLiveSimulation()" class="touch-btn flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 text-white px-4 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-orange-500/20">
+                  <i data-lucide="zap" class="w-4 h-4"></i>
+                  <span>⚡ RUN LIVE SIMULATION</span>
+                </button>
+                <button id="btn-smart-opt" onclick="triggerSmartOptimization()" class="touch-btn flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs shadow-md shadow-blue-600/30">
+                  <i data-lucide="play-circle" class="w-4 h-4"></i>
+                  <span>RUN SMART OPTIMIZATION</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Processing Animation Box (Point 1 & 4) -->
+            <div id="sim-progress-box" class="hidden mt-6 pt-6 border-t border-slate-100">
+              <div class="flex items-center justify-between mb-2">
+                <span id="sim-step-text" class="text-xs font-bold text-blue-700 flex items-center">
+                  <span class="w-2 h-2 rounded-full bg-blue-600 animate-ping mr-2"></span>
+                  Analyzing Battery SOC...
+                </span>
+                <span id="sim-step-percent" class="text-xs font-bold text-slate-600">20%</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                <div id="sim-progress-bar" class="bg-gradient-to-r from-blue-600 to-emerald-500 h-full w-[20%] transition-all duration-300"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- BEFORE vs AFTER (POINT 2 & 20 MOBILE STACKING) -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+
+            <!-- WITHOUT VOLTFLOW -->
+            <div class="bg-rose-50/80 border-2 border-rose-200 rounded-2xl p-4 sm:p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                  <h4 class="font-bold text-rose-900 text-xs sm:text-sm uppercase">WITHOUT VOLTFLOW (UNMANAGED)</h4>
+                </div>
+                <span class="bg-rose-600 text-white text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full animate-pulse">
+                  🔴 GRID OVERLOAD
+                </span>
+              </div>
+              <p class="text-xs text-rose-700 mb-3">All EVs pull maximum rated power simultaneously with unmanaged peak pricing tariffs.</p>
+              
+              <div class="space-y-2 text-xs">
+                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-rose-100">
+                  <span class="font-medium">EV-001 (Hazratganj @ Peak ₹14/kWh)</span>
+                  <span class="font-bold text-rose-700">60 kW (₹620)</span>
+                </div>
+                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-rose-100">
+                  <span class="font-medium">EV-002 (Gomti Nagar @ Peak ₹12/kWh)</span>
+                  <span class="font-bold text-rose-700">60 kW (₹405)</span>
+                </div>
+                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-rose-100">
+                  <span class="font-medium">EV-003 (Indira Nagar @ Peak ₹15/kWh)</span>
+                  <span class="font-bold text-rose-700">50 kW (₹380)</span>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-rose-200 flex items-center justify-between">
+                <div>
+                  <p class="text-[10px] sm:text-[11px] font-semibold text-rose-800">Total Peak Load</p>
+                  <p class="text-xl sm:text-2xl font-black text-rose-900">170 kW</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-[10px] sm:text-[11px] font-semibold text-rose-800">Grid Safe Limit</p>
+                  <p class="text-xl sm:text-2xl font-black text-slate-700">150 kW</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- WITH VOLTFLOW -->
+            <div class="bg-emerald-50/80 border-2 border-emerald-300 rounded-2xl p-4 sm:p-5">
+              <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center space-x-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                  <h4 class="font-bold text-emerald-900 text-xs sm:text-sm uppercase">WITH VOLTFLOW (COST-OPTIMIZED)</h4>
+                </div>
+                <span class="bg-emerald-600 text-white text-[10px] sm:text-[11px] font-bold px-2 py-0.5 rounded-full">
+                  🟢 GRID SAFE
+                </span>
+              </div>
+              <p class="text-xs text-emerald-800 mb-3">Smart routing to cheapest station + power modulation under grid caps.</p>
+              
+              <div class="space-y-2 text-xs">
+                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-emerald-100">
+                  <span class="font-medium">EV-001 (Shifted: ₹10/kWh Gomti)</span>
+                  <span class="font-bold text-blue-600">45 kW (₹480 • Saved ₹140)</span>
+                </div>
+                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-emerald-100">
+                  <span class="font-medium">EV-002 (Gomti: ₹10/kWh)</span>
+                  <span class="font-bold text-rose-600">60 kW (₹320 • Saved ₹85)</span>
+                </div>
+                <div class="bg-white/90 p-2.5 rounded-xl flex items-center justify-between border border-emerald-100">
+                  <span class="font-medium">EV-003 (Alambagh: Cheapest ₹9/kWh)</span>
+                  <span class="font-bold text-emerald-600">30 kW (₹215 • Saved ₹165)</span>
+                </div>
+              </div>
+
+              <div class="mt-4 pt-3 border-t border-emerald-200 flex items-center justify-between">
+                <div>
+                  <p class="text-[10px] sm:text-[11px] font-semibold text-emerald-800">Total Optimized Load</p>
+                  <p class="text-xl sm:text-2xl font-black text-emerald-900">135 kW</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-[10px] sm:text-[11px] font-semibold text-emerald-800">Peak Load Shaved</p>
+                  <p class="text-xl sm:text-2xl font-black text-emerald-600">20.6% ↓</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- IMPACT CARDS (POINT 3) -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+              <p class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase">Peak Load Shaving</p>
+              <h5 class="text-xl sm:text-2xl font-black text-blue-600 mt-1">20.6% ↓</h5>
+              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Demo / Simulation Data</span>
+            </div>
+            <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+              <p class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase">Estimated Savings</p>
+              <h5 class="text-xl sm:text-2xl font-black text-emerald-600 mt-1">₹18,450 Saved</h5>
+              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Demo / Simulation Data</span>
+            </div>
+            <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+              <p class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase">Deadline Success</p>
+              <h5 class="text-xl sm:text-2xl font-black text-indigo-600 mt-1">98.7%</h5>
+              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Demo / Simulation Data</span>
+            </div>
+            <div class="bg-white p-3.5 sm:p-4 rounded-2xl border border-slate-200 shadow-sm text-center">
+              <p class="text-[10px] sm:text-[11px] font-semibold text-slate-500 uppercase">Off-Peak Energy</p>
+              <h5 class="text-xl sm:text-2xl font-black text-amber-600 mt-1">1,240 kWh</h5>
+              <span class="text-[9px] sm:text-[10px] text-slate-400 font-medium">Demo / Simulation Data</span>
+            </div>
+          </div>
+
+          <!-- COST-AWARE OPTIMIZATION RESULT TABLE (POINT 16, 17, 19) -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-4 border-b border-slate-100">
+              <h4 class="font-bold text-slate-900 text-sm">Optimal Dispatch Matrix with Station Costing</h4>
+              <p class="text-xs text-slate-500">Calculates Energy Required × Price/kWh, Net Estimated Cost & Savings</p>
+            </div>
+            <div class="overflow-x-auto no-scrollbar">
+              <table class="w-full text-left text-xs min-w-[700px]">
+                <thead class="bg-slate-50 text-slate-500 font-semibold uppercase border-b border-slate-100">
+                  <tr>
+                    <th class="py-3 px-4">Vehicle</th>
+                    <th class="py-3 px-4">Priority</th>
+                    <th class="py-3 px-4">Assigned Station</th>
+                    <th class="py-3 px-4">Power</th>
+                    <th class="py-3 px-4">Energy Req.</th>
+                    <th class="py-3 px-4">Rate</th>
+                    <th class="py-3 px-4">Est. Cost</th>
+                    <th class="py-3 px-4">Saving</th>
+                    <th class="py-3 px-4">Deadline</th>
+                    <th class="py-3 px-4 text-right">Details</th>
+                  </tr>
+                </thead>
+                <tbody id="orchestration-table-body" class="divide-y divide-slate-100 font-medium"></tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ================= TAB 3: FLEET VEHICLES (POINT 5) ================= -->
+        <section id="panel-vehicles" class="tab-panel hidden space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Lucknow EV Fleet Telemetry & Battery Health</h3>
+            <div class="overflow-x-auto no-scrollbar">
+              <table class="w-full text-left text-xs min-w-[650px]">
+                <thead class="bg-slate-50 text-slate-500 font-semibold uppercase border-b border-slate-100">
+                  <tr>
+                    <th class="py-3 px-4">Vehicle ID</th>
+                    <th class="py-3 px-4">Plate</th>
+                    <th class="py-3 px-4">Model</th>
+                    <th class="py-3 px-4">Battery SOC</th>
+                    <th class="py-3 px-4">Range</th>
+                    <th class="py-3 px-4">Priority</th>
+                    <th class="py-3 px-4">Status</th>
+                    <th class="py-3 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="vehicles-table-body" class="divide-y divide-slate-100 font-medium"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 4: CHARGING STATIONS & PRICING (POINT 15, 18, 20) ================= -->
+        <section id="panel-stations" class="tab-panel hidden space-y-6">
+
+          <!-- STATION COST COMPARISON MATRIX (POINT 18) -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-2">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base">Station Cost Comparison & Value Matrix</h3>
+                <p class="text-xs text-slate-500">Evaluates 30 kWh standard top-up charging cost across Lucknow</p>
+              </div>
+              <span class="text-xs font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 self-start sm:self-auto">
+                Auto-Tagger Active
+              </span>
+            </div>
+
+            <div class="overflow-x-auto no-scrollbar">
+              <table class="w-full text-left text-xs min-w-[600px]">
+                <thead class="bg-slate-50 text-slate-500 font-semibold uppercase border-b border-slate-100">
+                  <tr>
+                    <th class="py-3 px-4">Station</th>
+                    <th class="py-3 px-4">Price/kWh</th>
+                    <th class="py-3 px-4">Peak / Off-Peak</th>
+                    <th class="py-3 px-4">Available Power</th>
+                    <th class="py-3 px-4">Est. Cost (30 kWh)</th>
+                    <th class="py-3 px-4 text-right">Recommendation</th>
+                  </tr>
+                </thead>
+                <tbody id="stations-comparison-tbody" class="divide-y divide-slate-100 font-medium"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- STATIONS DETAILED CARDS (POINT 15, 20) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6" id="stations-card-grid"></div>
+
+        </section>
+
+        <!-- ================= TAB 5: SMART SCHEDULE (POINT 6) ================= -->
+        <section id="panel-schedule" class="tab-panel hidden space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5">
+            <h3 class="font-bold text-slate-900 text-base mb-4">Master Charging Schedule (18 August 2026)</h3>
+            <div class="overflow-x-auto no-scrollbar">
+              <table class="w-full text-left text-xs min-w-[750px]">
+                <thead class="bg-slate-50 text-slate-500 font-semibold uppercase border-b border-slate-100">
+                  <tr>
+                    <th class="py-3 px-4">Vehicle ID</th>
+                    <th class="py-3 px-4">SOC</th>
+                    <th class="py-3 px-4">Target</th>
+                    <th class="py-3 px-4">Start Time</th>
+                    <th class="py-3 px-4">Est. Completion</th>
+                    <th class="py-3 px-4">Departure Deadline</th>
+                    <th class="py-3 px-4">Safety Buffer</th>
+                    <th class="py-3 px-4">Priority</th>
+                    <th class="py-3 px-4">Assigned Station</th>
+                    <th class="py-3 px-4">Power</th>
+                    <th class="py-3 px-4">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="schedules-table-body" class="divide-y divide-slate-100 font-medium"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 6: ANALYTICS (POINT 8) ================= -->
+        <section id="panel-analytics" class="tab-panel hidden space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-6">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 uppercase tracking-wider mb-4 text-blue-700">SMART CHARGING IMPACT & LOAD SHAVING</h3>
+            
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6">
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase">Peak Load Cut</p>
+                <p class="text-base sm:text-lg font-bold text-blue-600 mt-0.5">20.6% ↓</p>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase">Cost Saved</p>
+                <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5">₹18,450</p>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase">Off-Peak Shift</p>
+                <p class="text-base sm:text-lg font-bold text-indigo-600 mt-0.5">1,240 kWh</p>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase">Avg Charging Cost</p>
+                <p class="text-base sm:text-lg font-bold text-slate-800 mt-0.5">₹6.40/kWh</p>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase">Deadline Success</p>
+                <p class="text-base sm:text-lg font-bold text-emerald-600 mt-0.5">98.7%</p>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <p class="text-[10px] font-semibold text-slate-500 uppercase">Utilization</p>
+                <p class="text-base sm:text-lg font-bold text-amber-600 mt-0.5">58%</p>
+              </div>
+            </div>
+
+            <div>
+              <h4 class="font-bold text-slate-900 text-sm mb-1">Grid Load: Before vs After Optimization (24 Hours)</h4>
+              <p class="text-xs text-slate-500 mb-4">Shifting high charging loads safely below the 150 kW transformer threshold</p>
+              <div class="h-64 sm:h-80 w-full">
+                <canvas id="analyticsComparisonChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================= TAB 7: ALERTS (POINT 9) ================= -->
+        <section id="panel-alerts" class="tab-panel hidden space-y-4"></section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- VEHICLE DETAILS MODAL (POINT 5, 21 FIT TO SCREEN) -->
+  <div id="vehicle-details-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center space-x-3">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+            <i data-lucide="car" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 id="modal-vehicle-id" class="text-base font-bold text-slate-900">EV-001</h3>
+            <p id="modal-vehicle-plate" class="text-xs text-slate-500 font-medium">UP32-EV-4101 • Tata Nexon EV Max</p>
+          </div>
+        </div>
+        <button onclick="closeVehicleModal()" class="text-slate-400 hover:text-slate-600 p-2">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="my-4 p-3.5 bg-slate-50 rounded-xl border border-slate-100">
+        <div class="flex items-center justify-between text-xs font-bold mb-1.5">
+          <span>Battery SOC</span>
+          <span id="modal-soc-text" class="text-blue-600 text-sm font-black">42%</span>
+        </div>
+        <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+          <div id="modal-soc-bar" class="bg-blue-600 h-full rounded-full w-[42%]"></div>
+        </div>
+        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+          <span>0%</span>
+          <span id="modal-target-soc-text">Target: 90%</span>
+          <span>100%</span>
         </div>
       </div>
 
-      <div class="auth-right-form">
-        <div class="auth-tabs">
-          <button class="auth-tab-btn active" id="tabLoginBtn" type="button" onclick="switchAuthTab('login')">Log In</button>
-          <button class="auth-tab-btn" id="tabRegisterBtn" type="button" onclick="switchAuthTab('register')">Sign Up</button>
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-2.5 text-xs mb-4">
+        <div class="bg-slate-50 p-2.5 rounded-xl">
+          <span class="text-slate-400 block text-[9px] uppercase">Battery Capacity</span>
+          <strong id="modal-capacity" class="text-slate-800">40.5 kWh</strong>
         </div>
+        <div class="bg-slate-50 p-2.5 rounded-xl">
+          <span class="text-slate-400 block text-[9px] uppercase">Est. Range</span>
+          <strong id="modal-range" class="text-slate-800">135 km</strong>
+        </div>
+        <div class="bg-slate-50 p-2.5 rounded-xl">
+          <span class="text-slate-400 block text-[9px] uppercase">Priority</span>
+          <span id="modal-priority"></span>
+        </div>
+        <div class="bg-slate-50 p-2.5 rounded-xl">
+          <span class="text-slate-400 block text-[9px] uppercase">Assigned Station</span>
+          <strong id="modal-station" class="text-slate-800 truncate block">Hazratganj Hub</strong>
+        </div>
+        <div class="bg-slate-50 p-2.5 rounded-xl">
+          <span class="text-slate-400 block text-[9px] uppercase">Charging Power</span>
+          <strong id="modal-power" class="text-blue-600">45 kW</strong>
+        </div>
+        <div class="bg-slate-50 p-2.5 rounded-xl">
+          <span class="text-slate-400 block text-[9px] uppercase">Est. Completion</span>
+          <strong id="modal-eta" class="text-slate-800">05:42 AM</strong>
+        </div>
+        <div class="bg-slate-50 p-2.5 rounded-xl col-span-2 sm:col-span-3">
+          <span class="text-slate-400 block text-[9px] uppercase">Departure Deadline</span>
+          <strong id="modal-deadline" class="text-rose-600 font-bold">18 Aug 2026, 06:30 AM</strong>
+        </div>
+      </div>
 
-        <form id="loginForm" class="auth-form-body">
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="loginEmail" value="admin@voltflow.io" required placeholder="name@voltflow.io" />
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="loginPassword" value="adminpassword123" required placeholder="••••••••" />
-          </div>
-          <button type="submit" class="btn-auth-submit">Log In to Fleet Console</button>
-          <div class="demo-cred-note">
-            <i class="fa-solid fa-circle-info"></i> Demo: <b>admin@voltflow.io</b> | <b>adminpassword123</b>
-          </div>
-        </form>
-
-        <form id="registerForm" class="auth-form-body" style="display: none;">
-          <div class="form-group">
-            <label>Full Name</label>
-            <input type="text" id="regName" required placeholder="Mayank Tiwari" />
-          </div>
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" id="regEmail" required placeholder="mayank@voltflow.io" />
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" id="regPassword" required placeholder="At least 6 characters" />
-          </div>
-          <div class="form-group">
-            <label>Role</label>
-            <select id="regRole">
-              <option value="Super Admin">Super Admin</option>
-              <option value="Fleet Manager">Fleet Manager</option>
-              <option value="Operator">Operator</option>
-              <option value="Driver">Driver</option>
-            </select>
-          </div>
-          <button type="submit" class="btn-auth-submit">Create Account</button>
-        </form>
+      <div class="flex justify-end space-x-2">
+        <button onclick="closeVehicleModal()" class="touch-btn px-4 py-2 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl">
+          Close
+        </button>
       </div>
     </div>
   </div>
 
-  <!-- MAIN SaaS APPLICATION LAYOUT -->
-  <div class="app-container" id="appMainLayout">
-    
-    <!-- LEFT SIDEBAR (Desktop) -->
-    <aside class="sidebar">
-      <div class="brand-header">
-        <div class="brand-icon"><i class="fa-solid fa-bolt"></i></div>
-        <div style="flex:1;">
-          <div class="brand-title">VoltFlow</div>
-          <div class="brand-subtitle">EV Fleet Orchestrator</div>
-        </div>
-      </div>
-
-      <ul class="nav-list">
-        <li class="nav-item active" data-tab="dashboard">
-          <i class="fa-solid fa-table-columns"></i> <span>Dashboard</span>
-        </li>
-        <li class="nav-item" data-tab="vehicles">
-          <i class="fa-solid fa-car"></i> <span>Vehicles</span>
-        </li>
-        <li class="nav-item" data-tab="stations">
-          <i class="fa-solid fa-charging-station"></i> <span>Charging Stations</span>
-        </li>
-        <li class="nav-item" data-tab="schedule">
-          <i class="fa-regular fa-calendar-check"></i> <span>Schedule</span>
-        </li>
-        <li class="nav-item" data-tab="orchestration">
-          <i class="fa-solid fa-sliders"></i> <span>Orchestration</span>
-        </li>
-        <li class="nav-item" data-tab="analytics">
-          <i class="fa-solid fa-chart-line"></i> <span>Analytics</span>
-        </li>
-        <li class="nav-item" data-tab="alerts">
-          <i class="fa-regular fa-bell"></i> <span>Alerts</span>
-        </li>
-        <li class="nav-item" data-tab="reports">
-          <i class="fa-regular fa-file-lines"></i> <span>Reports</span>
-        </li>
-        <li class="nav-item" data-tab="users">
-          <i class="fa-solid fa-users"></i> <span>Users & Roles</span>
-        </li>
-      </ul>
-
-      <div class="user-profile-badge" id="userProfileBtn">
-        <div class="user-avatar" id="avatarInitials">MT</div>
-        <div style="flex:1; overflow:hidden;">
-          <div class="user-name" id="userProfileName">Mayank Tiwari</div>
-          <div class="user-role" id="userProfileRole">Super Admin</div>
-        </div>
-      </div>
-    </aside>
-
-    <!-- MAIN WORKSPACE -->
-    <main class="workspace">
-      <header class="top-navbar">
-        <div class="welcome-text">
-          <h2>Welcome back, <span id="navUserName">Mayank</span>! 👋</h2>
-          <p>Lucknow EV Fleet Telemetry & Smart Charging Hub</p>
-        </div>
-        <div class="nav-controls">
-          <div class="date-pill">
-            <span id="currentDatePill">May 17, 2026</span>
-            <i class="fa-regular fa-calendar" style="color: #64748B;"></i>
-          </div>
-          <button class="icon-circle-btn" title="Alerts" onclick="switchNav('alerts')"><i class="fa-regular fa-bell"></i></button>
-          <button class="icon-circle-btn" title="Full Screen" onclick="toggleFullScreen()"><i class="fa-solid fa-expand"></i></button>
-          <button class="icon-circle-btn" title="Log Out" id="logoutBtn" style="color: #EF4444;"><i class="fa-solid fa-arrow-right-from-bracket"></i></button>
-        </div>
-      </header>
-
-      <section class="content-viewport" id="viewport"></section>
-
-      <!-- MOBILE BOTTOM NAVIGATION (Matching Reference) -->
-      <nav class="mobile-bottom-nav">
-        <div class="mob-nav-item active" data-tab="dashboard">
-          <i class="fa-solid fa-table-columns"></i>
-          <span>Dashboard</span>
-        </div>
-        <div class="mob-nav-item" data-tab="vehicles">
-          <i class="fa-solid fa-car"></i>
-          <span>Vehicles</span>
-        </div>
-        <div class="mob-nav-item" data-tab="stations">
-          <i class="fa-solid fa-charging-station"></i>
-          <span>Stations</span>
-        </div>
-        <div class="mob-nav-item" data-tab="orchestration">
-          <i class="fa-solid fa-sliders"></i>
-          <span>Orchestration</span>
-        </div>
-        <div class="mob-nav-item" data-tab="alerts">
-          <i class="fa-regular fa-bell"></i>
-          <span>Alerts</span>
-        </div>
-      </nav>
-    </main>
-
-    <!-- RIGHT VEHICLE DETAILS PANEL -->
-    <aside class="right-details-panel" id="rightDetailsPanel">
-      <div class="right-panel-header">
-        <div style="display:flex; align-items:center; gap:8px;">
-          <i class="fa-solid fa-arrow-left" style="cursor:pointer; color:#64748B;" onclick="closeDetailsPanel()"></i>
-          <h3>Vehicle Details</h3>
-        </div>
-        <i class="fa-solid fa-xmark" style="cursor:pointer; color:#64748B; font-size:16px;" onclick="closeDetailsPanel()"></i>
-      </div>
-
-      <div id="rightPanelBody"></div>
-    </aside>
-
-  </div>
-
-  <!-- Global Modal for Add / CSV Import / Diagnostics -->
-  <div class="modal-backdrop" id="globalModal">
-    <div class="modal-window" id="modalWindowContent"></div>
-  </div>
-
-  <!-- Scripts -->
-  <script src="js/api.js"></script>
-  <script src="js/socket.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/map.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

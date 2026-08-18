@@ -1259,4 +1259,597 @@ document.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('voltflow_token')) {
     loadDashboard();
   }
+});// VoltFlow Engine Controller - 18 August 2026 Lucknow Fleet
+
+// Point 15: 5 Lucknow Hubs with Station-Wise Pricing Models
+let fleetStations = [
+  {
+    id: "CS-LKO-01",
+    name: "Hazratganj EV Superhub",
+    location: "Hazratganj Metro Circle, Lucknow",
+    acPrice: 8,
+    dcPrice: 12,
+    peakPrice: 14,
+    offPeakPrice: 9,
+    currentPrice: 12,
+    currentLoadKW: 105,
+    totalCapacityKW: 180,
+    gridLimitKW: 150,
+    availablePowerKW: 75,
+    activeSessions: "2 / 8",
+    utilizationPct: 58
+  },
+  {
+    id: "CS-LKO-02",
+    name: "Gomti Nagar Cyber Tower",
+    location: "Vibhuti Khand, Gomti Nagar",
+    acPrice: 7,
+    dcPrice: 10,
+    peakPrice: 12,
+    offPeakPrice: 8,
+    currentPrice: 10,
+    currentLoadKW: 120,
+    totalCapacityKW: 240,
+    gridLimitKW: 200,
+    availablePowerKW: 120,
+    activeSessions: "3 / 10",
+    utilizationPct: 50
+  },
+  {
+    id: "CS-LKO-03",
+    name: "Alambagh Transport Hub",
+    location: "Alambagh Inter-State Bus Hub",
+    acPrice: 6,
+    dcPrice: 9,
+    peakPrice: 11,
+    offPeakPrice: 7,
+    currentPrice: 9,
+    currentLoadKW: 40,
+    totalCapacityKW: 160,
+    gridLimitKW: 140,
+    availablePowerKW: 120,
+    activeSessions: "1 / 6",
+    utilizationPct: 25
+  },
+  {
+    id: "CS-LKO-04",
+    name: "Indira Nagar Rapid Station",
+    location: "Munshipulia Metro Station",
+    acPrice: 9,
+    dcPrice: 13,
+    peakPrice: 15,
+    offPeakPrice: 10,
+    currentPrice: 13,
+    currentLoadKW: 45,
+    totalCapacityKW: 120,
+    gridLimitKW: 100,
+    availablePowerKW: 55,
+    activeSessions: "2 / 4",
+    utilizationPct: 38
+  },
+  {
+    id: "CS-LKO-05",
+    name: "Shaheed Path Express Hub",
+    location: "Ekana Stadium Junction",
+    acPrice: 8,
+    dcPrice: 11,
+    peakPrice: 13,
+    offPeakPrice: 8,
+    currentPrice: 11,
+    currentLoadKW: 80,
+    totalCapacityKW: 200,
+    gridLimitKW: 180,
+    availablePowerKW: 100,
+    activeSessions: "3 / 8",
+    utilizationPct: 40
+  }
+];
+
+// Point 11: Real-world Diverse SOCs & Deadlines
+let fleetVehicles = [
+  {
+    vehicleId: "EV-001",
+    licensePlate: "UP32-EV-4101",
+    model: "Tata Nexon EV Max",
+    batteryCapacityKWh: 40.5,
+    currentSOC: 42,
+    targetSOC: 90,
+    currentRangeKM: 135,
+    status: "charging",
+    assignedStation: "Gomti Nagar Cyber Tower",
+    stationId: "CS-LKO-02",
+    currentChargingPowerKW: 45,
+    departureDeadline: "18 Aug 2026, 06:30 AM",
+    priority: "High",
+    eta: "05:42 AM",
+    startTime: "04:50 AM",
+    safetyBuffer: "48 min",
+    unmanagedCost: 620
+  },
+  {
+    vehicleId: "EV-002",
+    licensePlate: "UP32-EV-9022",
+    model: "Mahindra XUV400",
+    batteryCapacityKWh: 39.4,
+    currentSOC: 16,
+    targetSOC: 85,
+    currentRangeKM: 48,
+    status: "charging",
+    assignedStation: "Gomti Nagar Cyber Tower",
+    stationId: "CS-LKO-02",
+    currentChargingPowerKW: 60,
+    departureDeadline: "18 Aug 2026, 05:15 AM",
+    priority: "Critical",
+    eta: "05:05 AM",
+    startTime: "04:15 AM",
+    safetyBuffer: "10 min",
+    unmanagedCost: 405
+  },
+  {
+    vehicleId: "EV-003",
+    licensePlate: "UP32-EV-7788",
+    model: "Tata Ace EV (Cargo)",
+    batteryCapacityKWh: 21.3,
+    currentSOC: 68,
+    targetSOC: 95,
+    currentRangeKM: 88,
+    status: "charging",
+    assignedStation: "Alambagh Transport Hub",
+    stationId: "CS-LKO-03",
+    currentChargingPowerKW: 30,
+    departureDeadline: "18 Aug 2026, 08:00 AM",
+    priority: "Medium",
+    eta: "06:30 AM",
+    startTime: "05:10 AM",
+    safetyBuffer: "90 min",
+    unmanagedCost: 380
+  },
+  {
+    vehicleId: "EV-004",
+    licensePlate: "UP32-EV-1120",
+    model: "MG ZS EV Long Range",
+    batteryCapacityKWh: 50.3,
+    currentSOC: 80,
+    targetSOC: 90,
+    currentRangeKM: 320,
+    status: "idle",
+    assignedStation: "Alambagh Transport Hub",
+    stationId: "CS-LKO-03",
+    currentChargingPowerKW: 0,
+    departureDeadline: "18 Aug 2026, 09:30 AM",
+    priority: "Low",
+    eta: "--",
+    startTime: "--",
+    safetyBuffer: "120 min",
+    unmanagedCost: 0
+  }
+];
+
+let fleetAlerts = [
+  {
+    id: "ALT-01",
+    severity: "critical",
+    title: "Critical Battery Alert",
+    message: "EV-002 at 16% SOC near Gomti Nagar. Must charge before 05:15 AM departure.",
+    actionTitle: "Reserve Gun #2 at Gomti Nagar Hub",
+    power: "60 kW",
+    target: "85%",
+    rate: "₹10/kWh"
+  }
+];
+
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+  renderAllViews();
+  initDashboardChart();
+  initAnalyticsChart();
 });
+
+function renderAllViews() {
+  renderOrchestrationTable();
+  renderVehiclesTable();
+  renderStationsGrid();
+  renderStationComparisonTable();
+  renderSchedulesTable();
+  renderAlerts();
+}
+
+function getPriorityBadge(priority) {
+  if (priority === 'Critical') return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-700">🔴 Critical</span>';
+  if (priority === 'High') return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-700">🟠 High</span>';
+  if (priority === 'Medium') return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-100 text-yellow-800">🟡 Medium</span>';
+  return '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700">🟢 Low</span>';
+}
+
+function getStatusBadge(status) {
+  if (status === 'charging') return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700">⚡ Charging</span>';
+  return '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">💤 Standby</span>';
+}
+
+// Point 16, 17 & 19: Cost-Aware Charging Calculation Engine
+function calculateChargingCost(vehicle) {
+  const energyRequired = (vehicle.batteryCapacityKWh * (vehicle.targetSOC - vehicle.currentSOC)) / 100;
+  const station = fleetStations.find(s => s.id === vehicle.stationId) || fleetStations[0];
+  const pricePerKWh = station.currentPrice;
+  const estimatedCost = Math.round(energyRequired * pricePerKWh);
+  const estimatedSaving = vehicle.unmanagedCost > 0 ? Math.max(0, vehicle.unmanagedCost - estimatedCost) : 0;
+
+  return {
+    energyRequired: energyRequired.toFixed(1),
+    pricePerKWh,
+    estimatedCost,
+    estimatedSaving
+  };
+}
+
+// 1. Render Cost-Aware Orchestration Table (Point 19)
+function renderOrchestrationTable() {
+  const tbody = document.getElementById('orchestration-table-body');
+  if (!tbody) return;
+
+  tbody.innerHTML = fleetVehicles.map(v => {
+    const costData = calculateChargingCost(v);
+    return `
+      <tr class="hover:bg-slate-50 transition-colors">
+        <td class="py-3 px-4">
+          <div class="font-bold text-slate-900">${v.vehicleId}</div>
+          <div class="text-[10px] text-slate-400 font-medium">${v.model}</div>
+        </td>
+        <td class="py-3 px-4">${getPriorityBadge(v.priority)}</td>
+        <td class="py-3 px-4 font-semibold text-slate-800">${v.assignedStation}</td>
+        <td class="py-3 px-4 font-bold ${v.currentChargingPowerKW > 0 ? 'text-blue-600' : 'text-slate-400'}">${v.currentChargingPowerKW} kW</td>
+        <td class="py-3 px-4 text-slate-700 font-bold">${costData.energyRequired} kWh</td>
+        <td class="py-3 px-4 text-slate-700 font-semibold">₹${costData.pricePerKWh}/kWh</td>
+        <td class="py-3 px-4 font-black text-emerald-600">₹${costData.estimatedCost}</td>
+        <td class="py-3 px-4 font-bold text-blue-600">${costData.estimatedSaving > 0 ? '₹' + costData.estimatedSaving : '—'}</td>
+        <td class="py-3 px-4 text-rose-600 font-semibold">${v.departureDeadline}</td>
+        <td class="py-3 px-4 text-right">
+          <button onclick="openVehicleModal('${v.vehicleId}')" class="text-blue-600 font-bold hover:underline">Details</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// 2. Multi-Step Simulation Pipeline (Points 1, 4, 16)
+function triggerSmartOptimization() {
+  runPipeline([
+    { text: "Analyzing Battery SOC & Energy Demand...", pct: 15 },
+    { text: "Reading Departure Deadlines & Dispatch Urgency...", pct: 35 },
+    { text: "Comparing Station Prices (₹6 to ₹13/kWh)...", pct: 55 },
+    { text: "Checking Grid Capacity & Safe Headroom (150 kW Limit)...", pct: 75 },
+    { text: "Calculating Cost-Optimal Schedules & Power Modulation...", pct: 100 }
+  ]);
+}
+
+function runLiveSimulation() {
+  runPipeline([
+    { text: "Loading fleet telemetry...", pct: 15 },
+    { text: "Reading battery SOC...", pct: 30 },
+    { text: "Comparing station tariffs (Peak vs Off-Peak)...", pct: 45 },
+    { text: "Checking grid capacity...", pct: 60 },
+    { text: "Checking departure deadlines...", pct: 75 },
+    { text: "Calculating optimal schedule & minimum cost...", pct: 90 },
+    { text: "OPTIMIZATION COMPLETE 🟢", pct: 100 }
+  ]);
+}
+
+function runPipeline(steps) {
+  const box = document.getElementById('sim-progress-box');
+  const text = document.getElementById('sim-step-text');
+  const bar = document.getElementById('sim-progress-bar');
+  const pct = document.getElementById('sim-step-percent');
+  const btn1 = document.getElementById('btn-smart-opt');
+  const btn2 = document.getElementById('btn-live-sim');
+
+  box.classList.remove('hidden');
+  btn1.disabled = true;
+  btn2.disabled = true;
+
+  let i = 0;
+  const timer = setInterval(() => {
+    if (i < steps.length) {
+      text.innerHTML = `<span class="w-2 h-2 rounded-full bg-blue-600 animate-ping mr-2"></span> ${steps[i].text}`;
+      bar.style.width = `${steps[i].pct}%`;
+      pct.textContent = `${steps[i].pct}%`;
+      i++;
+    } else {
+      clearInterval(timer);
+      setTimeout(() => {
+        btn1.disabled = false;
+        btn2.disabled = false;
+        renderOrchestrationTable();
+      }, 350);
+    }
+  }, 450);
+}
+
+// 3. Station Cost Comparison Table (Point 18)
+function renderStationComparisonTable() {
+  const tbody = document.getElementById('stations-comparison-tbody');
+  if (!tbody) return;
+
+  tbody.innerHTML = fleetStations.map(s => {
+    const est30Cost = 30 * s.currentPrice;
+    let recommendation = '—';
+    if (s.id === 'CS-LKO-03') recommendation = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">🟢 Cheapest</span>';
+    if (s.id === 'CS-LKO-02') recommendation = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">🟢 Best Value</span>';
+
+    return `
+      <tr class="hover:bg-slate-50">
+        <td class="py-3 px-4 font-bold text-slate-900">${s.name}</td>
+        <td class="py-3 px-4 font-semibold text-slate-800">₹${s.currentPrice}/kWh</td>
+        <td class="py-3 px-4 text-slate-500">₹${s.peakPrice} / ₹${s.offPeakPrice}</td>
+        <td class="py-3 px-4 font-bold text-blue-600">${s.availablePowerKW} kW</td>
+        <td class="py-3 px-4 font-black text-slate-900">₹${est30Cost}</td>
+        <td class="py-3 px-4 text-right">${recommendation}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// 4. Detailed Station Cards (Points 15, 20)
+function renderStationsGrid() {
+  const grid = document.getElementById('stations-card-grid');
+  if (!grid) return;
+
+  grid.innerHTML = fleetStations.map(s => `
+    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+      <div>
+        <div class="flex items-start justify-between mb-2">
+          <div>
+            <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded">${s.id}</span>
+            <h4 class="font-bold text-slate-900 text-sm sm:text-base mt-1">${s.name}</h4>
+            <p class="text-xs text-slate-500">${s.location}</p>
+          </div>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            Operational
+          </span>
+        </div>
+
+        <!-- Pricing Breakdown Badges (Point 15) -->
+        <div class="grid grid-cols-4 gap-1.5 my-3 bg-slate-50 p-2.5 rounded-xl text-center text-[10px]">
+          <div><span class="text-slate-400 block">AC Rate</span><strong class="text-slate-800">₹${s.acPrice}</strong></div>
+          <div><span class="text-slate-400 block">DC Fast</span><strong class="text-blue-600">₹${s.dcPrice}</strong></div>
+          <div><span class="text-slate-400 block">Peak</span><strong class="text-rose-600">₹${s.peakPrice}</strong></div>
+          <div><span class="text-slate-400 block">Off-Peak</span><strong class="text-emerald-600">₹${s.offPeakPrice}</strong></div>
+        </div>
+
+        <!-- Power & Utilization -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs mb-3">
+          <div class="bg-slate-50 p-2 rounded-lg"><span class="text-[9px] text-slate-400 uppercase block">Current Load</span><strong>${s.currentLoadKW} / ${s.totalCapacityKW} kW</strong></div>
+          <div class="bg-slate-50 p-2 rounded-lg"><span class="text-[9px] text-slate-400 uppercase block">Utilization</span><strong class="text-blue-600">${s.utilizationPct}%</strong></div>
+          <div class="bg-slate-50 p-2 rounded-lg"><span class="text-[9px] text-slate-400 uppercase block">Available</span><strong class="text-emerald-600">${s.availablePowerKW} kW</strong></div>
+          <div class="bg-slate-50 p-2 rounded-lg"><span class="text-[9px] text-slate-400 uppercase block">Active Guns</span><strong>${s.activeSessions}</strong></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+          <div class="bg-blue-600 h-full rounded-full" style="width: ${s.utilizationPct}%"></div>
+        </div>
+        <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+          <span>Cap: ${s.gridLimitKW} kW</span>
+          <span>${s.availablePowerKW} kW Headroom</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// 5. Vehicles Table
+function renderVehiclesTable() {
+  const tbody = document.getElementById('vehicles-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = fleetVehicles.map(v => `
+    <tr class="hover:bg-slate-50">
+      <td class="py-3 px-4 font-bold text-slate-900">${v.vehicleId}</td>
+      <td class="py-3 px-4 font-semibold text-slate-700">${v.licensePlate}</td>
+      <td class="py-3 px-4 text-slate-600">${v.model}</td>
+      <td class="py-3 px-4">
+        <div class="flex items-center space-x-2">
+          <div class="w-14 bg-slate-200 h-2 rounded-full overflow-hidden">
+            <div class="bg-blue-600 h-full" style="width: ${v.currentSOC}%"></div>
+          </div>
+          <span class="font-bold text-xs">${v.currentSOC}%</span>
+        </div>
+      </td>
+      <td class="py-3 px-4 text-slate-700 font-semibold">${v.currentRangeKM} km</td>
+      <td class="py-3 px-4">${getPriorityBadge(v.priority)}</td>
+      <td class="py-3 px-4">${getStatusBadge(v.status)}</td>
+      <td class="py-3 px-4 text-right">
+        <button onclick="openVehicleModal('${v.vehicleId}')" class="touch-btn bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1 rounded-lg text-xs font-semibold">View Details</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// 6. Master Schedule (Point 6)
+function renderSchedulesTable() {
+  const tbody = document.getElementById('schedules-table-body');
+  if (!tbody) return;
+  tbody.innerHTML = fleetVehicles.map(v => `
+    <tr class="hover:bg-slate-50">
+      <td class="py-3 px-4 font-bold text-slate-900">${v.vehicleId}</td>
+      <td class="py-3 px-4 font-bold">${v.currentSOC}%</td>
+      <td class="py-3 px-4 font-bold text-blue-600">${v.targetSOC}%</td>
+      <td class="py-3 px-4 text-slate-600">${v.startTime}</td>
+      <td class="py-3 px-4 text-slate-800 font-semibold">${v.eta}</td>
+      <td class="py-3 px-4 text-rose-600 font-semibold">${v.departureDeadline}</td>
+      <td class="py-3 px-4 text-emerald-700 font-bold bg-emerald-50/50">${v.safetyBuffer}</td>
+      <td class="py-3 px-4">${getPriorityBadge(v.priority)}</td>
+      <td class="py-3 px-4 text-slate-700">${v.assignedStation}</td>
+      <td class="py-3 px-4 font-bold text-blue-600">${v.currentChargingPowerKW} kW</td>
+      <td class="py-3 px-4">${getStatusBadge(v.status)}</td>
+    </tr>
+  `).join('');
+}
+
+// 7. Actionable Alerts (Point 9)
+function renderAlerts() {
+  const container = document.getElementById('panel-alerts');
+  if (!container) return;
+  container.innerHTML = fleetAlerts.map(a => `
+    <div class="bg-white p-4 sm:p-5 rounded-2xl border border-rose-200 bg-rose-50/20 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center space-x-2">
+          <h4 class="font-bold text-slate-900 text-sm">${a.title}</h4>
+          <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-600 text-white">🔴 CRITICAL</span>
+        </div>
+        <p class="text-xs text-slate-600 mt-1">${a.message}</p>
+        <div class="mt-2 text-xs font-semibold text-slate-700">
+          Recommended: <span class="text-blue-600 font-bold">"${a.actionTitle}"</span> • Power: <span class="font-bold">${a.power}</span> • Tariff: <span class="font-bold text-emerald-600">${a.rate}</span>
+        </div>
+      </div>
+      <button onclick="applyAlertRecommendation('${a.id}')" class="touch-btn px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl whitespace-nowrap shadow-sm">
+        APPLY RECOMMENDATION
+      </button>
+    </div>
+  `).join('');
+  lucide.createIcons();
+}
+
+function applyAlertRecommendation(id) {
+  alert(`Recommendation dispatched to Gomti Nagar OCPP hub for ${id}. Fast Gun #2 reserved at off-peak ₹10/kWh.`);
+}
+
+// 8. Vehicle Details Modal (Point 5, 21)
+function openVehicleModal(id) {
+  const v = fleetVehicles.find(item => item.vehicleId === id);
+  if (!v) return;
+
+  document.getElementById('modal-vehicle-id').textContent = v.vehicleId;
+  document.getElementById('modal-vehicle-plate').textContent = `${v.licensePlate} • ${v.model}`;
+  document.getElementById('modal-soc-text').textContent = `${v.currentSOC}%`;
+  document.getElementById('modal-soc-bar').style.width = `${v.currentSOC}%`;
+  document.getElementById('modal-target-soc-text').textContent = `Target: ${v.targetSOC}%`;
+  document.getElementById('modal-capacity').textContent = `${v.batteryCapacityKWh} kWh`;
+  document.getElementById('modal-range').textContent = `${v.currentRangeKM} km`;
+  document.getElementById('modal-priority').innerHTML = getPriorityBadge(v.priority);
+  document.getElementById('modal-station').textContent = v.assignedStation;
+  document.getElementById('modal-power').textContent = `${v.currentChargingPowerKW} kW`;
+  document.getElementById('modal-eta').textContent = v.eta;
+  document.getElementById('modal-deadline').textContent = v.departureDeadline;
+
+  document.getElementById('vehicle-details-modal').classList.remove('hidden');
+  lucide.createIcons();
+}
+
+function closeVehicleModal() {
+  document.getElementById('vehicle-details-modal').classList.add('hidden');
+}
+
+// Navigation & Sidebar Handlers (Point 20)
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.classList.remove('text-blue-600', 'bg-blue-50/80');
+    n.classList.add('text-slate-600');
+  });
+
+  const selectedPanel = document.getElementById(`panel-${tabId}`);
+  const selectedNav = document.getElementById(`nav-${tabId}`);
+  if (selectedPanel) selectedPanel.classList.remove('hidden');
+  if (selectedNav) {
+    selectedNav.classList.add('text-blue-600', 'bg-blue-50/80');
+    selectedNav.classList.remove('text-slate-600');
+  }
+
+  const titles = {
+    dashboard: 'Dashboard Overview',
+    orchestration: 'Smart Orchestration Engine',
+    vehicles: 'Fleet Vehicles',
+    stations: 'Hubs & Pricing Comparison',
+    schedule: 'Smart Schedules',
+    analytics: 'Impact & Energy Costs',
+    alerts: 'Fleet Alerts'
+  };
+  document.getElementById('page-title').textContent = titles[tabId] || 'VoltFlow';
+  closeSidebar();
+  lucide.createIcons();
+}
+
+function toggleSidebar() {
+  document.getElementById('app-sidebar').classList.toggle('-translate-x-full');
+  document.getElementById('mobile-backdrop').classList.toggle('hidden');
+}
+
+function closeSidebar() {
+  document.getElementById('app-sidebar').classList.add('-translate-x-full');
+  document.getElementById('mobile-backdrop').classList.add('hidden');
+}
+
+// Charts (Point 8)
+function initDashboardChart() {
+  const ctx = document.getElementById('dashboardLiveChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+      datasets: [
+        {
+          label: 'Hazratganj Hub Load (kW)',
+          data: [65, 55, 105, 95, 70, 60, 50, 45, 80, 110, 90, 75],
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.1)',
+          fill: true,
+          tension: 0.3
+        },
+        {
+          label: '150 kW Safe Limit',
+          data: Array(12).fill(150),
+          borderColor: '#f59e0b',
+          borderDash: [5, 5],
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true, max: 180 } }
+    }
+  });
+}
+
+function initAnalyticsChart() {
+  const ctx = document.getElementById('analyticsComparisonChart');
+  if (!ctx) return;
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+      datasets: [
+        {
+          label: 'Without VoltFlow (Unmanaged Peak Overload)',
+          data: [70, 60, 110, 140, 175, 160, 90, 85, 120, 185, 170, 110],
+          borderColor: '#ef4444',
+          borderWidth: 2,
+          tension: 0.3
+        },
+        {
+          label: 'With VoltFlow (Cost-Optimized Peak Shaving)',
+          data: [110, 125, 135, 120, 130, 115, 85, 80, 110, 135, 125, 115],
+          borderColor: '#2563eb',
+          backgroundColor: 'rgba(37, 99, 235, 0.15)',
+          fill: true,
+          borderWidth: 2.5,
+          tension: 0.3
+        },
+        {
+          label: '150 kW Grid Limit',
+          data: Array(12).fill(150),
+          borderColor: '#f59e0b',
+          borderDash: [6, 6],
+          pointRadius: 0
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: { y: { beginAtZero: true, max: 200 } }
+    }
+  });
+}
